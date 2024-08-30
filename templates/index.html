@@ -1,0 +1,339 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Web control for Holyrics</title>
+    <link rel="stylesheet" href="/static/styles.css">
+</head>
+<body>
+    <div class="contenedor_global">
+
+        <div class="contenedor_letras sticky-buttons">
+
+            <button id="CloseCurrentPresentation"><img src="/static/images/escapar.png" class="img_esc"></button>
+            <button id="actionPrevious"> <img src="/static/images/atras.png"></button>
+            <button id="actionNext"><img src="/static/images/siguiente.png"></button>
+        </div>
+
+        <div class="contenedor_botones sticky-buttons-back">
+
+            <label for="elementId">ID: <input type="text" maxlength="13" id="elementId" name="elementId"></label>
+            <button id="MediaPlaylistAction"><img src="/static/images/play.png"></button>
+            <button id="MediaPlayerAction"><img src="/static/images/detener.png"></button>
+            <br>
+            <button id="GetMediaPlaylist"><img src="/static/images/reload.png"></button>
+            
+        </div>
+        
+        
+        <div class="sticky-output">
+            <pre id="output"></pre>
+        </div>
+        
+        
+        <table id="outputTable";>
+            <thead>
+                <tr>
+                    <th></th>
+                    <th style="padding-left: 10px;" align="left">Media</th>
+                    <th class="hidden">ID</th>
+                </tr>
+            </thead>
+            <tbody></tbody>
+        </table>
+   
+    </div>
+
+    <script>
+        const actionPrevious = document.getElementById('actionPrevious');
+        const actionNext = document.getElementById('actionNext');
+        const CloseCurrentPresentation = document.getElementById('CloseCurrentPresentation');
+        const GetMediaPlaylist = document.getElementById('GetMediaPlaylist');
+        const MediaPlaylistAction = document.getElementById('MediaPlaylistAction');
+        const MediaPlayerAction = document.getElementById('MediaPlayerAction');
+        const elementIdInput = document.getElementById('elementId');
+        const outputBody = document.querySelector('#outputTable tbody');
+        const output = document.getElementById('output'); 
+
+
+
+        actionNext.addEventListener('click', function() {
+            output.textContent = ""
+            fetch('/actionNext', {
+                method: 'POST'
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.status === "ok") {
+                    // Destellar el botón con el contorno verde durante 1 segundo
+                    actionNext.classList.add('flash-green-border');
+                    setTimeout(() => {
+                        actionNext.classList.remove('flash-green-border');
+                    }, 1000);
+                } else {
+                    // Convertir la respuesta JSON a una sola línea (sin espacios de indentación)
+                    output.textContent = JSON.stringify(data, null, 0);
+                    
+
+                    // Destellar el botón con el contorno rojo durante 1 segundo
+                    actionNext.classList.add('flash-red-border');
+                    setTimeout(() => {
+                        actionNext.classList.remove('flash-red-border');
+                    }, 1000);
+                }
+            })
+            .catch(error => {
+                alert('Error: ' + error);
+
+                // Destellar el botón con el contorno rojo durante 1 segundo
+                actionNext.classList.add('flash-red-border');
+                setTimeout(() => {
+                    actionNext.classList.remove('flash-red-border');
+                }, 1000);
+            });
+
+        });
+        document.addEventListener('keydown', function(event) {
+            output.textContent = ""
+            if (event.key === 'ArrowRight') {
+                actionNext.click(); // Simula un clic en el botón cuando se presiona la "flecha derecha"
+            }
+        });
+
+        actionPrevious.addEventListener('click', function() {
+            output.textContent = ""
+            fetch('/actionPrevious', {
+                method: 'POST'
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.status === "ok") {
+                    // Destellar el botón con el contorno verde durante 1 segundo
+                    actionPrevious.classList.add('flash-green-border');
+                    setTimeout(() => {
+                        actionPrevious.classList.remove('flash-green-border');
+                    }, 1000);
+                } else {
+                    // Convertir la respuesta JSON a una sola línea (sin espacios de indentación)
+                    output.textContent = JSON.stringify(data, null, 0);
+
+                    // Destellar el botón con el contorno rojo durante 1 segundo
+                    actionPrevious.classList.add('flash-red-border');
+                    setTimeout(() => {
+                        actionPrevious.classList.remove('flash-red-border');
+                    }, 1000);
+                }
+            })
+            .catch(error => {
+                alert('Error: ' + error);
+
+                // Destellar el botón con el contorno rojo durante 1 segundo
+                actionPrevious.classList.add('flash-red-border');
+                setTimeout(() => {
+                    actionPrevious.classList.remove('flash-red-border');
+                }, 1000);
+            });
+        });
+        document.addEventListener('keydown', function(event) {
+            if (event.key === 'ArrowLeft') {
+                actionPrevious.click(); // Simula un clic en el botón cuando se presiona la "flecha derecha"
+            }
+        });
+
+        // Crea un mapa que asocie el tipo con el nombre del archivo de icono
+        const tipoIconos = {
+            audio: 'audio.png',
+            video: 'video.png',
+            image: 'image.png',
+            song: 'song.png',
+            countdown: 'countdown.png',
+            countdown_cp: 'countdown.png',
+            text: 'text.png',
+            title: 'title.png',
+            file: 'file.png',
+            api: 'api.png',
+            verse: 'verse.png',
+
+            // Agrega más tipos según sea necesario
+        };
+
+        GetMediaPlaylist.addEventListener('click', function() {
+            fetch('/GetMediaPlaylist', {
+                method: 'POST'
+            })
+            .then(response => response.json())
+            .then(data => {
+                 // Filtrar solo las propiedades "id", "name" y "type" del array
+                 const filteredData = data.data.map(item => {
+                    return {
+                        type: item.type,
+                        id: item.id,
+                        name: extractFileName(item.name), // Llama a una función para extraer el nombre del archivo
+                        
+                    };
+                });
+
+                // Generar la tabla con los datos filtrados
+                outputBody.innerHTML = filteredData.map(item => {
+                    const isTitle = item.type === 'title';
+                    const nameClass = isTitle ? 'title-type' : 'lineaid';
+
+                    // Obtiene el nombre del archivo de icono según el tipo
+                    const iconName = tipoIconos[item.type] || '';
+
+                    return `
+                        <tr>
+                            <td ${isTitle ? 'class="title-type"' : ''} align="right"><img src="/static/images/${iconName}" alt="${item.type}"  class="icon"</td>
+                            <td class="${nameClass}">${item.name}</td>
+                            <td class="hidden">${item.id}</td>
+                        </tr>
+                    `;
+                }).join('');
+            })
+            .catch(error => {
+                outputBody.innerHTML = `<tr><td colspan="3">Error: ${error}</td></tr>`;
+            });
+        })
+        
+
+        
+
+        // Función para extraer el nombre del archivo de una ruta
+        function extractFileName(path) {
+            const parts = path.split('\\'); // Divide la ruta en partes usando el separador de carpeta (en Windows)
+            return parts[parts.length - 1]; // Devuelve la última parte que es el nombre del archivo
+        }
+
+        MediaPlaylistAction.addEventListener('click', function() {
+
+            const elementId = elementIdInput.value; // Obtener el valor ingresado por el usuario
+            const data = {
+                id: elementId // Crear un objeto con el ID del elemento
+            };
+            output.textContent = ""
+            fetch('/MediaPlaylistAction', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(data) // Convertir el objeto a una cadena JSON y enviarlo en el cuerpo de la solicitud
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.status === "ok") {
+                    // Destellar el botón con el contorno verde durante 1 segundo
+                    MediaPlaylistAction.classList.add('flash-green-border');
+                    setTimeout(() => {
+                        MediaPlaylistAction.classList.remove('flash-green-border');
+                    }, 1000);
+                } else {
+                    // Convertir la respuesta JSON a una sola línea (sin espacios de indentación)
+                    output.textContent = JSON.stringify(data, null, 0);
+
+                    // Destellar el botón con el contorno rojo durante 1 segundo
+                    MediaPlaylistAction.classList.add('flash-red-border');
+                    setTimeout(() => {
+                        MediaPlaylistAction.classList.remove('flash-red-border');
+                    }, 1000);
+                }
+            })
+            .catch(error => {
+                alert('Error: ' + error);
+
+                // Destellar el botón con el contorno rojo durante 1 segundo
+                MediaPlaylistAction.classList.add('flash-red-border');
+                setTimeout(() => {
+                    MediaPlaylistAction.classList.remove('flash-red-border');
+                }, 1000);
+            });
+        })
+
+        CloseCurrentPresentation.addEventListener('click', function() {
+            output.textContent = ""
+            fetch('/CloseCurrentPresentation', {
+                method: 'POST'
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.status === "ok") {
+                    // Destellar el botón con el contorno verde durante 1 segundo
+                    CloseCurrentPresentation.classList.add('flash-green-border');
+                    setTimeout(() => {
+                        CloseCurrentPresentation.classList.remove('flash-green-border');
+                    }, 1000);
+                } else {
+                    // Convertir la respuesta JSON a una sola línea (sin espacios de indentación)
+                    output.textContent = JSON.stringify(data, null, 0);
+
+                    // Destellar el botón con el contorno rojo durante 1 segundo
+                    CloseCurrentPresentation.classList.add('flash-red-border');
+                    setTimeout(() => {
+                        CloseCurrentPresentation.classList.remove('flash-red-border');
+                    }, 1000);
+                }
+            })
+            .catch(error => {
+                alert('Error: ' + error);
+
+                // Destellar el botón con el contorno rojo durante 1 segundo
+                CloseCurrentPresentation.classList.add('flash-red-border');
+                setTimeout(() => {
+                    CloseCurrentPresentation.classList.remove('flash-red-border');
+                }, 1000);
+            });
+        })
+        document.addEventListener('keydown', function(event) {
+            if (event.key === 'Escape') {
+                CloseCurrentPresentation.click(); // Simula un clic en el botón cuando se presiona Escape
+            }
+        });
+
+        MediaPlayerAction.addEventListener('click', function() {
+            output.textContent = ""
+            fetch('/MediaPlayerAction', {
+                method: 'POST',
+                body: {"action": "stop"}
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.status === "ok") {
+                    // Destellar el botón con el contorno verde durante 1 segundo
+                    MediaPlayerAction.classList.add('flash-green-border');
+                    setTimeout(() => {
+                        MediaPlayerAction.classList.remove('flash-green-border');
+                    }, 1000);
+                } else {
+                    // Convertir la respuesta JSON a una sola línea (sin espacios de indentación)
+                    output.textContent = JSON.stringify(data, null, 0);
+
+                    // Destellar el botón con el contorno rojo durante 1 segundo
+                    MediaPlayerAction.classList.add('flash-red-border');
+                    setTimeout(() => {
+                        MediaPlayerAction.classList.remove('flash-red-border');
+                    }, 1000);
+                }
+            })
+            .catch(error => {
+                alert('Error: ' + error);
+
+                // Destellar el botón con el contorno rojo durante 1 segundo
+                MediaPlayerAction.classList.add('flash-red-border');
+                setTimeout(() => {
+                    MediaPlayerAction.classList.remove('flash-red-border');
+                }, 1000);
+            });
+        })
+
+        // Agregar evento de clic a las celdas que contienen el ID en la tabla
+        outputTable.addEventListener('click', function(event) {
+            const clickedElement = event.target;
+            if (clickedElement.tagName === 'TD' && clickedElement.parentElement.cells[1] === clickedElement) {
+                const idValue = clickedElement.parentElement.cells[2].textContent; // Obtén el ID de la columna ID
+                elementIdInput.value = idValue;
+                MediaPlaylistAction.click(); // Disparar evento click del botón de reproducción
+            }
+        });
+
+
+    </script>
+</body>
+</html>

@@ -1,0 +1,191 @@
+/* Estilos generales */
+
+/* Configura la apariencia de todo el cuerpo del documento */
+body {
+    font-family: Georgia, 'Times New Roman', Times, serif; /* Fuente del texto, con fallback a otras fuentes en caso de no estar disponibles */
+    background-color: #3a393a; /* Color de fondo del cuerpo (un tono oscuro) */
+    margin: 5; /* Elimina los márgenes externos del cuerpo */
+    padding: 0; /* Elimina los espacios internos del cuerpo */
+    display: flex; /* Utiliza flexbox para organizar los elementos hijos */
+    justify-content: left; /* Centra horizontalmente el contenido del cuerpo */
+    align-items: left; /* Centra verticalmente el contenido del cuerpo */
+    color: white;
+    /*height: 100vh; /* Establece la altura del cuerpo como el 100% del alto del viewport (ventana visible) */
+  }
+  
+  /* Contenedor de botones */
+  
+  /* Configura la apariencia del contenedor que contiene los botones */
+  .contenedor_global {
+    display: flex; /* Utiliza flexbox para organizar los elementos hijos */
+    flex-direction: column; /* Organiza los elementos hijos en una columna vertical */
+    align-items: left; /* Centra horizontalmente los elementos hijos dentro del contenedor */
+    gap: 10px; /* Espacio entre los elementos hijos del contenedor */
+  }
+  
+  /* Contenedor de letras */
+  
+  /* Configura la apariencia del contenedor que contiene elementos con letras */
+  .contenedor_letras {
+    gap: 5px; /* Espacio entre los elementos hijos del contenedor */
+    padding: 0px; /* Espaciado interno del contenedor */
+    border-radius: 10px; /* Radio de las esquinas del contenedor para que tenga bordes redondeados */
+    /*border: 2px solid #db2222; /* Borde sólido de 2 píxeles con color rojo (#db2222) */
+    /*margin-left: 65px*/
+    display: flex;
+    justify-content: center; /* Centra horizontalmente los elementos */
+    max-width: 307px;
+  }
+  .sticky-buttons {
+    position: sticky;
+    top: 0; /* La posición en la parte superior de la ventana del navegador */
+    background-color: rgb(136, 136, 136); /* Fondo blanco para cubrir los elementos de la tabla */
+    z-index: 1000; /* Z-index para estar por encima de la tabla */
+  }
+
+  /* Contenedor de canciones */
+  
+  /* Configura la apariencia del contenedor que contiene elementos con canciones */
+  .contenedor_botones {
+    gap: 5px; /* Espacio entre los elementos hijos del contenedor */
+    padding: 0px; /* Espaciado interno del contenedor */
+    padding-left: 5px;
+    padding-right: 5px;
+    border-radius: 10px; /* Radio de las esquinas del contenedor para que tenga bordes redondeados */
+    /*: 2px solid #1317ec; /* Borde sólido de 2 píxeles con color azul (#1317ec) */
+    /*margin-left: 5px;*/
+    display: flex;
+    align-items: center; /* Centra verticalmente los elementos hijos */
+    justify-content: center; /* Centra horizontalmente los elementos */
+    max-width: 297px;
+  }
+  .sticky-buttons-back {
+    position: sticky;
+    top: 51px; /* La posición en la parte superior de la ventana del navegador */
+    background-color: rgb(136, 136, 136); /* Fondo blanco para cubrir los elementos de la tabla */
+    z-index: 999; /* Z-index para estar por encima de la tabla */
+  }
+
+  .sticky-output {
+    position: sticky;
+    top: 102px; /* La posición en la parte superior de la ventana del navegador */
+    background-color: rgb(58, 57, 58); /* Fondo blanco para cubrir los elementos de la tabla */
+    z-index: 998; /* Z-index para estar por encima de la tabla */
+  }
+
+  /* Estilos para botones y etiquetas */
+  
+  /* Configura la apariencia de los botones y etiquetas */
+  label {
+    padding-left: 5px; /* Espaciado interno del botón o etiqueta */
+    padding-top: 10px;
+    padding-right: 5px;
+    padding-bottom: 10px;
+    max-height: 85%;
+    background-color: #666464; /* Color de fondo del botón o etiqueta (un tono gris oscuro) */
+    color: white; /* Color del texto dentro del botón o etiqueta */
+    border: none; /* Sin borde */
+    border-radius: 5px; /* Radio de las esquinas del botón o etiqueta para que tenga bordes redondeados */
+    /*cursor: pointer; /* Cambia el cursor a una mano cuando el botón o etiqueta es interactivo */
+    display: flex;
+    align-items: center; /* Centra verticalmente los elementos hijos */
+    justify-content: center; /* Centra horizontalmente los elementos hijos */
+    
+  }
+  
+  button {
+    padding: 5px 5px; /* Espaciado interno del botón o etiqueta */
+    background-color: #666464; /* Color de fondo del botón o etiqueta (un tono gris oscuro) */
+    color: white; /* Color del texto dentro del botón o etiqueta */
+    border: none; /* Sin borde */
+    border-radius: 5px; /* Radio de las esquinas del botón o etiqueta para que tenga bordes redondeados */
+    margin-top: 2px;
+    margin-bottom: 2px;
+    cursor: pointer; /* Cambia el cursor a una mano cuando el botón o etiqueta es interactivo */
+  }
+
+  /* Estilos para el input (entrada de texto) */
+  
+  input {
+    max-width: 110px; /* Anchura máxima del elemento input */
+    background-color: #837f7f; /* Color de fondo del input (un tono gris medio) */
+    color: white; /* Color del texto dentro del input */
+    padding-top: 3px; /* Espaciado interno del input */
+    padding-bottom: 3px;
+    text-align: center;
+    font-size: 14px; /* Tamaño de la fuente del texto dentro del input */
+    border: 0px solid #ffffff; /* Borde del input (0 píxeles de ancho, no visible) */
+    border-radius: 5px; /* Radio de las esquinas del input para que tenga bordes redondeados */
+    outline: none; /* Elimina el contorno predeterminado que aparece cuando el input está en foco */
+  }
+  
+  /* Estilos para imágenes dentro de botones */
+  
+  button img {
+    width: 30px; /* Ajusta el ancho de la imagen dentro del botón */
+    height: 30px; /* Ajusta la altura de la imagen dentro del botón */
+    /*border-left: 15px;*/
+    margin-right: 0px; /* Agrega un espacio entre la imagen y el texto del botón */
+  }
+  
+/* Estilo para el texto dentro de las celdas de la tabla */
+td, th {
+  font-size: 14px; /* Aquí puedes ajustar el tamaño del texto, por ejemplo, 14px */
+}
+
+
+/* Agregar animación para destellar el borde verde */
+@keyframes flash-green {
+  from { border: 1px solid transparent; }
+  to { border-color: green; }
+}
+
+/* Agregar animación para destellar el borde rojo */
+@keyframes flash-red {
+  from { border: 1px solid transparent; }
+  to { border-color: red; }
+}
+
+/* Aplicar estilos para el botón */
+button {
+  border: 2px solid #837f7f;
+}
+
+/* Clase para aplicar la animación verde */
+.flash-green-border {
+  animation: flash-green 1s infinite;
+}
+
+/* Clase para aplicar la animación roja */
+.flash-red-border {
+  animation: flash-red 1s infinite;
+}
+.lineaid{
+  transition: all .5ms;
+  padding-left: 10px;
+}
+
+
+.lineaid:hover{
+  transform: scale(1.03);
+  cursor: pointer;
+  color:yellow;
+  background-color: #605e60; /* Define el color de fondo cuando el cursor está sobre el elemento */
+}
+
+.title-type {
+  font-weight: bold; /* Texto en negrita */
+  padding-left: 10px; /* Padding left de 10px */
+  color: rgb(0, 255, 0);
+  border: 1px solid #999; /* Establece un borde de 1 píxel sólido en un color gris (#999) */
+  padding: 2px; /* Opcional: agrega un espacio de relleno alrededor del contenido */
+}
+
+.hidden {
+  display: none;
+}
+
+.icon {
+  width: 16px;
+  height: 16px;
+}
