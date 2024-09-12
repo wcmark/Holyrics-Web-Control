@@ -1,0 +1,291 @@
+/* Reset básico */
+* {
+    margin: 0px;
+    padding-top: 2px;
+    padding-bottom: 2px;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: Arial, sans-serif;
+    background-color: #2C2C2C;
+    color: #FFFFFF;
+    /*margin-bottom: 10px; /* Añade espacio inferior para evitar solapamiento con el contenedor fijo */
+
+}
+
+header {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background-color: #152714;
+    padding: 5px;
+    z-index: 1000; /* Asegura que el encabezado siempre esté en la parte superior */
+    color: white;
+}
+
+.container {
+    display: flex;
+    flex-direction: row; /* Asegura que los elementos se alineen en fila en pantallas grandes */
+    height: calc(100vh - 60px); /* Ajustar altura considerando el header */
+    margin-top: 33px;
+    /*margin-bottom: 30px;*/
+}
+
+nav {
+    flex-basis: auto; /* El ancho del panel de navegación */
+    background-color: #1F1F1F;
+    /*padding: 1rem;*/
+    overflow-y: auto;
+}
+
+main {
+    flex-grow: 1; /* Ocupa el espacio restante a la derecha del panel de navegación */
+    padding: 1rem;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+}
+
+
+.books-lists {
+    display: flex; 
+    justify-content: space-evenly;  /*Asegura que haya espacio entre las dos columnas*/
+}
+
+.books-column {
+    flex-basis: 48%; /* Ajusta el ancho de cada columna */
+}
+
+/* Grid para libros */
+.books-column ul {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr); /* 3 columnas para los libros del AT */
+    gap: 2px; /* Reducir el espacio entre bloques al mínimo */
+    list-style-type: none;
+    padding: 0;
+}
+
+.books-column li {
+    background-color: #444;
+    padding: 2px;
+    margin-top: 1px;
+    text-align: center;
+    cursor: pointer;
+    border-radius: 5px;
+    font-size: 0.9rem;
+    word-wrap: break-word; /* Permitir que el texto se ajuste */
+}
+
+.books-column li:hover {
+    background-color: #555;
+}
+
+/* Específico para el NT */
+.books-column:nth-child(2) ul {
+    grid-template-columns: repeat(2, 1fr); /* 2 columnas para los libros del NT */
+}
+
+.selected {
+    background-color: #2b4c2a !important;
+    text-decoration: underline;
+}
+
+
+.chapter-section, .verse-section {
+    flex: 1;
+    margin-bottom: 2rem;
+    padding: 1rem;
+    background-color: #333;
+    border-radius: 5px;
+}
+
+
+.chapter-section h2, .verse-section h2 {
+    margin-bottom: 1rem;
+    text-align: center;
+}
+
+/* Grid para capítulos */
+.chapter-section ul {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(50px, 1fr)); /* Ajuste dinámico para capítulos */
+    gap: 5px;
+    list-style-type: none;
+    padding: 0;
+}
+
+.chapter-section li {
+    background-color: #444;
+    padding: 5px;
+    text-align: center;
+    cursor: pointer;
+    border-radius: 5px;
+}
+
+.chapter-section li:hover {
+    background-color: #555;
+}
+
+/* Grid para versículos */
+.verse-section ul {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(40px, 1fr)); /* Permitir más columnas */
+    gap: 5px;
+    list-style-type: none;
+    padding: 0;
+}
+
+.verse-section li {
+    background-color: #444;
+    padding: 5px;
+    text-align: center;
+    cursor: pointer;
+    border-radius: 5px;
+}
+
+.verse-section li:hover {
+    background-color: #555;
+}
+
+.reference-section {
+    text-align: center; /* Alinea el texto al centro */
+    margin: 20px 0; /* Añade márgenes superior e inferior para separar la referencia */
+}
+
+#verseReference {
+    font-size: 1.2rem; /* Tamaño de la fuente para destacar la referencia */
+    text-align: center;
+    color: #FFFFFF; /* Puedes ajustar el color si lo deseas */
+}
+
+#clearSelection {
+    margin-top: 0px; /* Espacio arriba del botón */
+    padding: 3px 7px; /* Tamaño del botón */
+    border: none; /* Sin borde */
+    background-color: #4d0101; /* Color de fondo */
+    color: #fff; /* Color del texto */
+    cursor: pointer; /* Cambia el cursor cuando se pasa sobre el botón */
+    border-radius: 5px; /* Bordes redondeados */
+}
+
+#clearSelection:hover {
+    background-color: #555; /* Color del fondo cuando el mouse pasa sobre el botón */
+}
+
+
+/* Estilo del botón para volver arriba */
+#backToTopButton {
+    display: none; /* Inicialmente oculto */
+    position: fixed;
+    bottom: 40px;
+    right: 5px;
+    z-index: 100; /* Asegura que esté por encima de otros elementos */
+    background-color: #607e97; /* Color de fondo del botón */
+    color: white;
+    border: none;
+    padding: 15px;
+    border-radius: 100%;
+    cursor: pointer;
+    font-size: 13px;
+    transition: opacity 0.3s;
+}
+
+#backToTopButton:hover {
+    background-color: #455661; /* Cambia el color al pasar el mouse */
+}
+
+#search-container {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    background-color: #62880b;
+    padding: 5px;
+    box-shadow: 0 -2px 5px rgba(0, 0, 0, 0.1);
+    z-index: 1000;
+    display: flex; /* Para organizar los elementos en fila */
+    justify-content: center; /* Centra los elementos */
+    gap: 5px; /* Espacio entre los elementos */
+}
+
+#search-container input {
+    padding: 2px;
+    height: min-content;
+    font-size: 14px;
+    width: 50%;
+    
+}
+#search-container button {
+    background-color: #007bff;
+    color: #fff;
+    border: none;
+    padding: 5px 10px;
+    cursor: pointer;
+}
+
+#search-container button:hover {
+    background-color: #0056b3;
+}
+
+
+/* Ajustes Responsivos */
+@media (max-width: 1200px) {
+    nav {
+        width: 350px;
+    }
+}
+
+@media (max-width: 992px) {
+    nav {
+        width: 350px;
+    }
+}
+
+@media (max-width: 768px) {
+    .container {
+        display: flex;
+        flex-direction: row; /* Mantener en fila */
+        flex-wrap: wrap; /* Permitir que los elementos se ajusten */
+    }
+
+    nav {
+        flex-basis: 100%; /* El nav ocupará toda la fila */
+        width: auto;
+    }
+
+    main {
+        flex-basis: 100%; /* Ocupa todo el espacio a la derecha */
+        display: flex;
+        flex-direction: column;
+    }
+
+    .chapter-section, .verse-section {
+        width: 100%;
+    }
+
+    .books-column {
+        width: 25%;
+        min-width: 20%;
+    }
+
+    .books-column ul {
+        grid-template-columns: repeat(auto-fill, minmax(60px, 1fr));
+    }
+
+    /*.books-lists {
+        flex-direction: column;
+    }
+
+    
+
+
+
+    .chapter-section ul, .verse-section ul {
+        grid-template-columns: repeat(auto-fill, minmax(40px, 1fr));
+    }*/
+}

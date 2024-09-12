@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Biblia</title>
+    <link rel="stylesheet" href="/static/styles_biblia.css">
+</head>
+<body>
+    <header>
+            <div id="noVerseReference"><h3>Biblia OBS - Holyrics</h3></div>
+            <div id="verseReference"></div>  <!-- Aquí irá la referencia -->
+            <button id="clearSelection">Borrar</button> <!-- Botón para borrar la selección -->
+        
+    </header>
+    <div class="container">
+        <nav>
+        <!--    <h2>Libros</h2> -->
+            <div class="books-lists">
+                <div class="books-column">
+                    <h5>Antiguo Testamento</h5>
+                    <ul id="booksListAT"></ul>
+                </div>
+                <div class="books-column">
+                    <h5>Nuevo Testamento</h5>
+                    <ul id="booksListNT"></ul>
+                </div>
+            </div>
+        </nav>
+        <main>         
+            <section class="chapter-section">
+                <h2>Capítulos</h2>
+                <ul id="chaptersList"></ul>
+            </section>
+            <section class="verse-section">
+                <h2>Versículos</h2>
+                <ul id="versesList"></ul>
+            </section>
+        </main>
+    </div>
+    <button id="backToTopButton" title="Volver Arriba">^</button>
+    <script src="/static/script.js"></script>
+    <!-- <div id="search-container">
+        <input type="text" id="search-books" placeholder="Buscar libro" />
+        <input type="text" id="search-chapters" placeholder="Buscar capítulo" />
+        <input type="text" id="search-verses" placeholder="Buscar versículo" />
+        <button id="clear-selection">X</button>
+    </div> -->
+</body>
+</html>
