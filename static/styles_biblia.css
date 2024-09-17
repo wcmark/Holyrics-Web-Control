@@ -218,8 +218,9 @@ main {
     height: min-content;
     font-size: 14px;
     width: 50%;
-    
+    box-sizing: border-box;    
 }
+
 #search-container button {
     background-color: #007bff;
     color: #fff;
@@ -230,6 +231,60 @@ main {
 
 #search-container button:hover {
     background-color: #0056b3;
+}
+
+#suggestions-container {
+    display: none;
+    position: absolute;
+    bottom: 100%;
+    left: 0;
+    width: 100%;
+    border: 1px solid #62880b;
+    background-color: #2C2C2C;
+    max-height: none;
+    overflow: visible;
+    z-index: 1000;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2); /* Opcional: agrega una sombra para destacar el contenedor */
+    box-sizing: border-box;
+}
+
+#suggestions-bcontainer {
+    display: none;
+    position: absolute;
+    bottom: 100%;
+    left: 0;
+    width: 100%;
+    border: 1px solid #62880b;
+    background-color: #2C2C2C;
+    max-height: none;
+    overflow: visible;
+    z-index: 1000;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2); /* Opcional: agrega una sombra para destacar el contenedor */
+    box-sizing: border-box;
+}
+
+#suggestions-vcontainer {
+    display: none;
+    position: absolute;
+    bottom: 100%;
+    left: 0;
+    width: 100%;
+    border: 1px solid #62880b;
+    background-color: #2C2C2C;
+    max-height: none;
+    overflow: visible;
+    z-index: 1000;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2); /* Opcional: agrega una sombra para destacar el contenedor */
+    box-sizing: border-box;
+}
+
+.suggestion {
+    padding: 8px;
+    cursor: pointer;
+}
+
+.suggestion:hover {
+    background-color: #555;
 }
 
 

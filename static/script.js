@@ -7,18 +7,44 @@ document.addEventListener('DOMContentLoaded', function() {
     const clearSelectionButton = document.getElementById('clearSelection');
     const backToTopButton = document.getElementById('backToTopButton');
     const noVerseReference = document.getElementById('noVerseReference');
+    const bookInput = document.getElementById('search-books');
+    const chapterInput = document.getElementById('search-chapters');
+    const verseInput = document.getElementById('search-verses');
+    const clearButton = document.getElementById('clear-selection');
+
     let selectedElement = null;
     let bibleData = null; // Para almacenar los datos de la Biblia cargados
     
-    // Variables para rastrear la selección actual
-    let currentBookIndex = null;
-    let currentChapter = null;
-    let currentVerse = null;
+    // Variable para guardar el libro seleccionado
+    let selectedBook = null;
+    let selectedChapter = null;
 
     // Variables para almacenar la configuración del archivo config.json
     let ip = null;
     let token = null;
     let puerto = null;
+
+    // Cargar la Biblia desde el archivo JSON
+    fetch('/static/bible.json')
+        .then(response => response.json())
+        .then(data => {
+            bibleData = data.books; // Guardar los datos de la Biblia
+
+            // Filtrar libros del AT y NT
+            const booksAT = bibleData.filter(book => parseInt(book.number) <= 39); // Libros del AT
+            const booksNT = bibleData.filter(book => parseInt(book.number) > 39); // Libros del NT
+
+            // Llenar la lista de libros del AT y NT
+            populateBooksList(booksAT, booksListAT);
+            populateBooksList(booksNT, booksListNT);
+
+            // Aplicar truncamiento a los nombres de los libros
+            truncateBookNames();
+
+        })
+        .catch(error => {
+            console.error('Error al cargar el archivo JSON:', error);
+        });
 
     // Cargar el archivo config.json
     fetch('/api/config')
@@ -115,29 +141,6 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     clearSelectionButton.addEventListener('click', clearSelection);
-
-    // Cargar la Biblia desde el archivo JSON
-    fetch('/static/bible.json')
-        .then(response => response.json())
-        .then(data => {
-            bibleData = data.books; // Guardar los datos de la Biblia
-
-            // Filtrar libros del AT y NT
-            const booksAT = bibleData.filter(book => parseInt(book.number) <= 39); // Libros del AT
-            const booksNT = bibleData.filter(book => parseInt(book.number) > 39); // Libros del NT
-
-            // Llenar la lista de libros del AT y NT
-            populateBooksList(booksAT, booksListAT);
-            populateBooksList(booksNT, booksListNT);
-
-            // Aplicar truncamiento a los nombres de los libros
-            truncateBookNames();
-
-        })
-        .catch(error => {
-            console.error('Error al cargar el archivo JSON:', error);
-        });
-
 
     function populateBooksList(books, listElement) {
         books.forEach((book, index) => {
@@ -401,6 +404,297 @@ document.addEventListener('DOMContentLoaded', function() {
             });
     }
     
+    // Función para filtrar libros
+    bookInput.addEventListener('input', () => {
+        const searchValue = bookInput.value.toLowerCase();
         
+        // Filtrar libros basados en la búsqueda
+        const bookMatches = bibleData.filter(book => book.name.toLowerCase().startsWith(searchValue));
+
+        if (bookMatches.length === 1) {
+            // Autocompletar si solo queda un libro
+            selectedBook = bookMatches[0];
+            bookInput.value = selectedBook.name;
+            const suggestionsBContainer = document.getElementById('suggestions-bcontainer');
+            suggestionsBContainer.innerHTML = '';
+            suggestionsBContainer.style.display = 'none';
+
+            // Pasar al campo de capítulos automáticamente
+            chapterInput.focus();
+            
+            console.log(selectedBook.content);
+
+        } else if (bookMatches.length > 1) {
+            // Mostrar lista desplegable con coincidencias posibles
+            showBookSuggestions(bookMatches);
+        } else {
+            selectedBook = null;
+        }
+    });
+
+    // Función para mostrar sugerencias de libros
+    function showBookSuggestions(bookMatches) {
+        const suggestionsBContainer = document.getElementById('suggestions-bcontainer');
+        suggestionsBContainer.innerHTML = ''; // Limpiar sugerencias anteriores
+
+        if (bookMatches.length === 0) {
+            suggestionsBContainer.style.display = 'none'; // Ocultar si no hay coincidencias
+            return;
+        }
+
+        bookMatches.forEach(book => {
+            const suggestionElement = document.createElement('div');
+            suggestionElement.className = 'suggestion';
+            suggestionElement.textContent = book.name;
+            suggestionElement.addEventListener('click', () => {
+                selectedBook = book;
+                bookInput.value = selectedBook.name;
+                suggestionsBContainer.innerHTML = ''; // Limpiar sugerencias después de seleccionar
+                suggestionsBContainer.style.display = 'none';
+                console.log(`Libro: ${selectedBook.name}, Capítulo: ${selectedChapter}`);
+                
+                // Pasar al campo de versículos automáticamente
+                chapterInput.focus();
+            });
+            suggestionsBContainer.appendChild(suggestionElement);
+        });
+        // Mostrar el contenedor de sugerencias
+        suggestionsBContainer.style.display = 'block';
+        // Actualizar la posición del contenedor para que se muestre hacia arriba
+        const rect = bookInput.getBoundingClientRect();
+        suggestionsBContainer.style.left = `${rect.left}px`;
+        suggestionsBContainer.style.width = `${rect.width}px`;
+        suggestionsBContainer.style.bottom = `${window.innerHeight - rect.top}px`;
+    }
+
+    // Función para filtrar capítulos
+    chapterInput.addEventListener('input', () => {
+        if (!selectedBook) {
+            alert('Primero selecciona un libro válido');
+            return;
+        }
+
+        const totalChapters = getTotalChapters(selectedBook);
+        let chapterList = [];
+        for (let i = 1; i <= totalChapters; i++) {
+            chapterList.push(i.toString());
+        }
+
+        const chapterValue = chapterInput.value;
+        const chapterMatches = chapterList.filter(chapter => chapter.startsWith(chapterValue));
+
+        if (chapterMatches.length === 1) {
+            // Autocompletar si solo queda un capítulo
+            selectedChapter = chapterMatches[0]; // Aquí, `chapterMatches[0]` ya es el capítulo como una cadena
+            chapterInput.value = selectedChapter;
+            const suggestionsContainer = document.getElementById('suggestions-container');
+            suggestionsContainer.innerHTML = '';
+            suggestionsContainer.style.display = 'none';
+            console.log(`Libro: ${selectedBook.name}, Capítulo: ${selectedChapter}`);
+
+            // Pasar al campo de versículos automáticamente
+            verseInput.focus();
+        } else if (chapterMatches.length > 1) {
+            // Mostrar lista desplegable con coincidencias posibles (opcional)
+            showChapterSuggestions(chapterMatches);
+        } else {
+            selectedChapter = null;
+        }
+    });
+
+    // Función para manejar el autocompletado cuando el campo de capítulos pierde el foco
+    chapterInput.addEventListener('blur', () => {
+        const chapterValue = chapterInput.value;
+        if (!selectedBook) {
+            alert('Primero selecciona un libro válido');
+            return;
+        }
+
+        const totalChapters = getTotalChapters(selectedBook);
+        let chapterList = [];
+        for (let i = 1; i <= totalChapters; i++) {
+            chapterList.push(i.toString());
+        }
+
+        const chapterMatches = chapterList.filter(chapter => chapter.startsWith(chapterValue));
+
+        // Si hay coincidencias, selecciona la primera opción automáticamente
+        if (chapterMatches.length > 0) {
+            selectedChapter = chapterMatches[0];
+            chapterInput.value = selectedChapter;
+            console.log(`Libro: ${selectedBook.name}, Capítulo: ${selectedChapter}`);
+        }
+
+        // Limpiar sugerencias y ocultar el contenedor
+        const suggestionsContainer = document.getElementById('suggestions-container');
+        suggestionsContainer.innerHTML = '';
+        suggestionsContainer.style.display = 'none'; // Ocultar el contenedor
+    });
+
+    // Función para mostrar sugerencias de capítulos (opcional)
+    function showChapterSuggestions(chapterMatches) {
+        const suggestionsContainer = document.getElementById('suggestions-container');
+        suggestionsContainer.innerHTML = ''; // Limpiar sugerencias anteriores
+
+        if (chapterMatches.length === 0) {
+            suggestionsContainer.style.display = 'none'; // Ocultar si no hay coincidencias
+            return;
+        }
+
+        chapterMatches.forEach(chapter => {
+            const suggestionElement = document.createElement('div');
+            suggestionElement.className = 'suggestion';
+            suggestionElement.textContent = chapter;
+            suggestionElement.addEventListener('click', () => {
+                selectedChapter = chapter;
+                chapterInput.value = selectedChapter;
+                suggestionsContainer.innerHTML = ''; // Limpiar sugerencias después de seleccionar
+                suggestionsContainer.style.display = 'none';
+                console.log(`Libro: ${selectedBook.name}, Capítulo: ${selectedChapter}`);
+                
+                // Pasar al campo de versículos automáticamente
+                verseInput.focus();
+            });
+            suggestionsContainer.appendChild(suggestionElement);
+        });
+        // Mostrar el contenedor de sugerencias
+        suggestionsContainer.style.display = 'block';
+        // Actualizar la posición del contenedor para que se muestre hacia arriba
+        const rect = chapterInput.getBoundingClientRect();
+        suggestionsContainer.style.left = `${rect.left}px`;
+        suggestionsContainer.style.width = `${rect.width}px`;
+        suggestionsContainer.style.bottom = `${window.innerHeight - rect.top}px`;
+    }
+
+
+    // Función para filtrar versículos
+    verseInput.addEventListener('input', () => {
+        if (!selectedChapter) {
+            alert('Primero selecciona un capítulo válido');
+            return;
+        }
+
+        const verseValue = verseInput.value;
+        const verseMatches = selectedBook.content.filter(verse => verse.chapter === selectedChapter && verse.verse.startsWith(verseValue));
+
+        if (verseMatches.length === 1) {
+            // Autocompletar si solo queda un versículo
+            verseInput.value = verseMatches[0].verse;
+            const suggestionsVContainer = document.getElementById('suggestions-vcontainer');
+            suggestionsVContainer.innerHTML = '';
+            suggestionsVContainer.style.display = 'none';
+            handleVerseInput();
+            console.log(`Libro: ${selectedBook.name}, Capítulo: ${selectedChapter}, Versículo: ${verseMatches[0].verse}`);
+        } else if (verseMatches.length > 1) {
+            // Mostrar lista desplegable con coincidencias posibles
+            showVerseSuggestions(verseMatches);
+        }
+    });
+
+    // Función para capturar y enviar el versículo cuando se presiona Enter o se enfoca otro campo
+    function handleVerseInput() {
+        // Obtener valores de los campos de texto
+        const bookNumber = getBookNumberFromName(bookInput.value); // Asegúrate de tener esta función para convertir el nombre del libro en su número
+        const chapter = chapterInput.value;
+        const verse = verseInput.value;
+
+        // Verificar que todos los campos tengan valores válidos
+        if (bookNumber && chapter && verse) {
+            sendVerseSelection(bookNumber, chapter, verse);
+        } else {
+            console.error('Todos los campos deben estar completos.');
+        }
+    }
+
+    // Función para convertir el nombre del libro en su número
+    function getBookNumberFromName(bookName) {
+        const book = bibleData.find(b => b.name.toLowerCase() === bookName.toLowerCase());
+        return book ? book.number : null;
+    }
+
+    // Función para manejar el autocompletado cuando el campo de versículos pierde el foco
+    verseInput.addEventListener('blur', () => {
+        autocompleteVerse();
+    });
+
+    // Función para manejar el autocompletado cuando se presiona Enter
+    verseInput.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter') {
+            e.preventDefault();  // Evitar que se envíe un formulario por defecto
+            autocompleteVerse();
+            verseInput.blur();
+        }
+    });
+
+    function autocompleteVerse() {
+        const verseValue = verseInput.value;
+        if (!selectedChapter) {
+            alert('Primero selecciona un capítulo válido');
+            return;
+        }
+        const verseMatches = selectedBook.content.filter(verse => verse.chapter === selectedChapter && verse.verse.startsWith(verseValue));
+        
+        // Si hay coincidencias, selecciona la primera opción automáticamente
+        if (verseMatches.length > 0) {
+            selectedVerse = verseMatches[0].verse;
+            verseInput.value = selectedVerse;
+            handleVerseInput();
+            console.log(`Libro: ${selectedBook.name}, Capítulo: ${selectedChapter}, Versículo: ${selectedVerse}`);
+        }
+
+        // Limpiar sugerencias y ocultar el contenedor
+        const suggestionsVContainer = document.getElementById('suggestions-vcontainer');
+        suggestionsVContainer.innerHTML = '';
+        suggestionsVContainer.style.display = 'none'; // Ocultar el contenedor
+    }
+
+    // Función para mostrar sugerencias de versículos
+    function showVerseSuggestions(verseMatches) {
+        const suggestionsVContainer = document.getElementById('suggestions-vcontainer');
+        suggestionsVContainer.innerHTML = ''; // Limpiar sugerencias anteriores
+
+        if (verseMatches.length === 0) {
+            suggestionsVContainer.style.display = 'none'; // Ocultar si no hay coincidencias
+            return;
+        }
+
+        verseMatches.forEach(verse => {
+            const suggestionElement = document.createElement('div');
+            suggestionElement.className = 'suggestion';
+            suggestionElement.textContent = verse.verse;
+            suggestionElement.addEventListener('click', () => {
+                selectedVerse = verse.verse;
+                verseInput.value = selectedVerse;
+                suggestionsVContainer.innerHTML = ''; // Limpiar sugerencias después de seleccionar
+                suggestionsVContainer.style.display = 'none';
+                handleVerseInput();
+                console.log(`Libro: ${selectedBook.name}, Capítulo: ${selectedChapter}, Versículo: ${verseMatches[0].verse}`);
+                
+                // Pasar al campo de versículos automáticamente
+                //chapterInput.focus();
+            });
+            suggestionsVContainer.appendChild(suggestionElement);
+        });
+        // Mostrar el contenedor de sugerencias
+        suggestionsVContainer.style.display = 'block';
+        // Actualizar la posición del contenedor para que se muestre hacia arriba
+        const rect = verseInput.getBoundingClientRect();
+        suggestionsVContainer.style.left = `${rect.left}px`;
+        suggestionsVContainer.style.width = `${rect.width}px`;
+        suggestionsVContainer.style.bottom = `${window.innerHeight - rect.top}px`;
+    }
+
+    // Limpiar la selección
+    clearButton.addEventListener('click', () => {
+        bookInput.value = '';
+        chapterInput.value = '';
+        verseInput.value = '';
+        selectedBook = null;
+        selectedChapter = null;
+        bookInput.focus();
+        //const suggestionsContainer = document.getElementById('suggestions-container');
+        //suggestionsContainer.innerHTML = '';
+        //suggestionsContainer.style.display = 'none';
+    });
     
 });
