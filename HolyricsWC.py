@@ -1,6 +1,6 @@
 import tkinter as tk
 import threading
-from tkinter import scrolledtext, messagebox, Menu
+from tkinter import scrolledtext, messagebox, Menu, PhotoImage
 from pystray import Icon, MenuItem as item
 from PIL import Image, ImageDraw
 from flask import Flask, render_template, request, jsonify, send_from_directory
@@ -23,8 +23,10 @@ def get_local_ip():
 def update_status():
     ipLocal = get_local_ip()
     port = portServer  # Cambia esto según la variable porServer si la usas
-    url = f"http://{ipLocal}:{port}"
-    status_text.set(f"Servidor corriendo en: {url}\nNo cierre esta ventana.")
+    url = (f"http://{ipLocal}:{port}")
+    status_text.set(f"Servidor corriendo en:\n{url}\n\nNo cierre esta ventana.")
+    global urlRun
+    urlRun = tk.Label(root, text=url, font=("Arial", 12))
 
 playing = None
 
@@ -85,6 +87,11 @@ def nueva_pagina():
 @app.route('/static/bible.json')
 def bible_json():
     return send_from_directory('static', 'bible.json')
+
+# Ruta para servir copy.png
+@app.route('/static/copy.png')
+def copy_png():
+    return send_from_directory('static', 'copy.png')
 
 # Configuración para servir archivos estáticos (CSS, imágenes, etc.)
 @app.route('/<path:path>')
@@ -335,11 +342,27 @@ root = tk.Tk()
 root.title("Server - Holyrics Web Control")
 root.resizable(False, False)
 
+# Función para mostrar notificación temporal
+def mostrar_notificacion(texto):
+    # Crear un label temporal
+    notificacion = tk.Label(root, text=texto, background="lightgreen")
+    notificacion.place(x=295, y=480)  # Ajusta la posición como necesites
+    # Desaparecer el label después de 2 segundos (2000 ms)
+    root.after(2000, notificacion.destroy)
+
+# Función para copiar al portapapeles
+def copiar_al_portapapeles():
+    texto = urlRun.cget("text")
+    root.clipboard_clear()
+    root.clipboard_append(texto)
+    mostrar_notificacion("Copiado")  # Muestra la notificación
+
+
 def show_about():
     about_message = (
         "☝️ PARA LA GLORIA DE DIOS ☝️\n\n"
         "Web Control para Holyrics\n"
-        "Versión: 2.0.0\n\n\n"
+        "Versión: 2.1.1\n\n\n"
         "Información de contacto:\n\n"
         "Telegram: @mark_ost7\n"
         "GitHub: https://github.com/wcmark\n"
@@ -437,7 +460,15 @@ log_message("Servidor en ejecución...")
 # Etiqueta para mostrar el estado del servidor
 status_text = tk.StringVar()
 status_label = tk.Label(root, textvariable=status_text, font=("Helvetica", 12))
-status_label.grid(row=8, column=0, columnspan=2, padx=10, pady=10)
+status_label.grid(row=8, column=0, columnspan=2, padx=10, pady=0)
+
+# Crear una imagen PNG para el botón (opcional, cambia la ruta del archivo)
+imagen_boton = PhotoImage(file="static/copy.png")
+
+# Crear el botón con la imagen y el comando de copiar
+boton_copiar = tk.Button(root, image=imagen_boton, command=copiar_al_portapapeles)
+boton_copiar.grid(row=8, column=1, columnspan=2, padx=0, pady=5, sticky="n")
+
 
 # Actualizar el estado en la interfaz gráfica
 update_status()
