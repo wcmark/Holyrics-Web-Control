@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <link rel="stylesheet" href="/static/styles_ppt.css"> <!-- Enlace al archivo CSS -->
+    <title>PPT Control</title>
+</head>
+<body>
+
+
+
+<div id="botonIzquierda">
+    <!-- <img src="/static/images/atras.png" alt="actionNext"> -->
+    <button title="Anterior [←]" onclick="removeFocus(this)">
+        <span class="material-icons">
+            arrow_back
+        </span>
+    </button>
+</div>
+
+<div id="sitioCentro">
+    <iframe src="" id="iframeContainer" frameborder="0"></iframe>
+</div>
+
+<div id="botonDerecha">
+    <!-- <img src="/static/images/siguiente.png" alt="actionPrevious"> -->
+    <button title="Siguiente [→]" onclick="removeFocus(this)">
+        <span class="material-icons">
+            arrow_forward
+        </span>
+    </button>
+</div>
+
+
+<div>
+    <pre id="output"></pre>
+</div>
+
+<script>
+    const actionPrevious = document.getElementById('botonIzquierda');
+    const actionNext = document.getElementById('botonDerecha');
+    const output = document.getElementById('output');
+
+    // Leer la IP desde el archivo JSON
+    fetch('/api/config')  // Ruta relativa al archivo config.json
+        .then(response => response.json())
+        .then(config => {
+            // Acceder al campo "ip" del JSON
+            const ip = config.ip;
+            const option = config.option;
+            
+            // Sustituir la IP en la URL del iframe
+            const iframe = document.getElementById('iframeContainer');
+            iframe.src = `http://${ip.trim()}/stage-view${option}`;
+        })
+        .catch(error => {
+            console.error('Error al leer la IP desde el archivo JSON:', error);
+        });
+
+
+    actionNext.addEventListener('click', function() {
+            output.textContent = ""
+            fetch('/actionNext', {
+                method: 'POST'
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.status === "ok") {
+                    // Destellar el botón con el contorno verde durante 1 segundo
+                    actionNext.classList.add('flash-green-border');
+                    setTimeout(() => {
+                        actionNext.classList.remove('flash-green-border');
+                    }, 1000);
+                } else {
+                    // Convertir la respuesta JSON a una sola línea (sin espacios de indentación)
+                    output.textContent = JSON.stringify(data, null, 0);
+                    
+
+                    // Destellar el botón con el contorno rojo durante 1 segundo
+                    actionNext.classList.add('flash-red-border');
+                    setTimeout(() => {
+                        actionNext.classList.remove('flash-red-border');
+                    }, 1000);
+                }
+            })
+            .catch(error => {
+                alert('Error: ' + error);
+
+                // Destellar el botón con el contorno rojo durante 1 segundo
+                actionNext.classList.add('flash-red-border');
+                setTimeout(() => {
+                    actionNext.classList.remove('flash-red-border');
+                }, 1000);
+            });
+
+    });
+
+    document.addEventListener('keydown', function(event) {
+        output.textContent = ""
+        if (event.key === 'ArrowRight') {
+            actionNext.click(); // Simula un clic en el botón cuando se presiona la "flecha derecha"
+        }
+    });
+
+    actionPrevious.addEventListener('click', function() {
+        output.textContent = ""
+        fetch('/actionPrevious', {
+            method: 'POST'
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.status === "ok") {
+                // Destellar el botón con el contorno verde durante 1 segundo
+                actionPrevious.classList.add('flash-green-border');
+                setTimeout(() => {
+                    actionPrevious.classList.remove('flash-green-border');
+                }, 1000);
+            } else {
+                // Convertir la respuesta JSON a una sola línea (sin espacios de indentación)
+                output.textContent = JSON.stringify(data, null, 0);
+
+                // Destellar el botón con el contorno rojo durante 1 segundo
+                actionPrevious.classList.add('flash-red-border');
+                setTimeout(() => {
+                    actionPrevious.classList.remove('flash-red-border');
+                }, 1000);
+            }
+        })
+        .catch(error => {
+            alert('Error: ' + error);
+
+            // Destellar el botón con el contorno rojo durante 1 segundo
+            actionPrevious.classList.add('flash-red-border');
+            setTimeout(() => {
+                actionPrevious.classList.remove('flash-red-border');
+            }, 1000);
+        });
+    });
+
+    document.addEventListener('keydown', function(event) {
+        if (event.key === 'ArrowLeft') {
+            actionPrevious.click(); // Simula un clic en el botón cuando se presiona la "flecha derecha"
+        }
+    });
+
+    function removeFocus(button) {
+        button.blur(); // Elimina el foco del botón
+    }
+
+
+</script>
+
+</body>
+</html>

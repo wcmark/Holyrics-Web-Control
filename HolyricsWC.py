@@ -1,11 +1,12 @@
 import tkinter as tk
 import threading
-from tkinter import scrolledtext, messagebox, Menu, PhotoImage
+from tkinter import scrolledtext, messagebox, Menu
 from pystray import Icon, MenuItem as item
 from PIL import Image, ImageDraw
-from flask import Flask, render_template, request, jsonify, send_from_directory
+from flask import Flask, render_template, request, jsonify, send_from_directory, session
 import socket
 import requests, os, json
+import webbrowser
 
 def get_local_ip():
     s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
@@ -19,14 +20,6 @@ def get_local_ip():
         s.close()
     return ipLocal
 
-# Mostrar la IP y el puerto en la interfaz gráfica
-def update_status():
-    ipLocal = get_local_ip()
-    port = portServer  # Cambia esto según la variable porServer si la usas
-    url = (f"http://{ipLocal}:{port}")
-    status_text.set(f"Servidor corriendo en:\n{url}\n\nNo cierre esta ventana.")
-    global urlRun
-    urlRun = tk.Label(root, text=url, font=("Arial", 12))
 
 playing = None
 
@@ -44,11 +37,42 @@ print()
 print()
 print(Colors.BLUE + "Iniciando el servidor..." + Colors.END)
 
+app.secret_key = 'your_secret_key'
+
+# Cargar la contraseña desde config.json
+def load_password():
+    with open('config.json') as config_file:
+        config = json.load(config_file)
+        return config.get("password")
+
+@app.route('/', methods=['GET', 'POST'])
+def index():
+    if password == "":
+        authenticated = True
+    else:
+        authenticated = session.get('authenticated', False)
+    
+    if request.method == 'POST':
+        input_password = request.form['password']
+        stored_password = load_password()  # función que carga la contraseña desde config.json
+        
+        if input_password == stored_password:
+            session['authenticated'] = True
+            authenticated = True
+        else:
+            return "Contraseña incorrecta", 403
+    
+    return render_template('index.html', authenticated=authenticated)
+
+# selected_option = "/text3"  # Valor inicial por defecto
+
 # Ruta API para enviar la configuración como JSON
 @app.route('/api/config')
 def get_config():
     with open('config.json') as config_file:
         config_data = json.load(config_file)
+    # config_data["option"] = selected_option
+
     return jsonify(config_data)
 
 # Cargar la configuración desde el archivo config.json
@@ -60,38 +84,74 @@ ip = config.get('ip')
 token = config.get('token')
 puerto = config.get('puerto')
 portServer = config.get('portServer')
+password = config.get('password')
+selected_option = config.get('option')
+
+# Función para actualizar la selección de la opción
+def actualizar_opcion():
+    global selected_option
+    selected_option = opcion_var.get()
+    with open('config.json', 'w') as config_file:
+        json.dump({"ip": ip, "token": token, "puerto": puerto, "portServer": portServer, "password": password, "option": selected_option}, config_file, indent=4)
 
 # Función para actualizar la configuración
 def update_config():
-    global ip, token, puerto, portServer
+    global ip, token, puerto, portServer, password
     ip = entry_ip.get()
     token = entry_token.get()
     puerto = entry_puerto.get()
     portServer = entry_portServer.get()
+    password = entry_password.get()
+    selected_option = opcion_var.get()
 
     # Guardar los valores en config.json
     with open('config.json', 'w') as config_file:
-        json.dump({"ip": ip, "token": token, "puerto": puerto, "portServer": portServer}, config_file, indent=4)
+        json.dump({"ip": ip, "token": token, "puerto": puerto, "portServer": portServer, "password": password, "option": selected_option}, config_file, indent=4)
 
     messagebox.showinfo("Información", "Configuración actualizada correctamente. Reinicie el servidor para aplicar los cambios.")
 
-@app.route('/')
+""" @app.route('/')
 def index():
-    return render_template('index.html')
+    return render_template('index.html') """
 
-@app.route('/biblia')
-def nueva_pagina():
-    return render_template('Biblia.html')
+@app.route('/biblia', methods=['GET', 'POST'])
+def biblia():
+    if password == "":
+        authenticated = True
+    else:
+        authenticated = session.get('authenticated', False)
+    
+    if request.method == 'POST':
+        input_password = request.form['password']
+        stored_password = load_password()  # función que carga la contraseña desde config.json
+        
+        if input_password == stored_password:
+            session['authenticated'] = True
+            authenticated = True
+        else:
+            return "Contraseña incorrecta", 403
+    
+    return render_template('Biblia.html', authenticated=authenticated)
+
+@app.route('/ppt')
+def ppt():
+    if acceso_permitido:    
+        return render_template('ppt.html')
+    else:
+        return jsonify({"message": "Acceso denegado a /ppt"}), 403
+    
+# Función para actualizar el acceso según el estado de la casilla de verificación
+def actualizar_acceso():
+    global acceso_permitido
+    acceso_permitido = acceso_var.get() == 1  # 1 = acceso permitido, 0 = acceso denegado
+    estado_texto.set("Permitido" if acceso_permitido else "Denegado")
+    check_acceso.config(text="Activar acceso a /ppt: " + estado_texto.get())
+
 
 # Ruta para servir bible.json
 @app.route('/static/bible.json')
 def bible_json():
     return send_from_directory('static', 'bible.json')
-
-# Ruta para servir copy.png
-@app.route('/static/copy.png')
-def copy_png():
-    return send_from_directory('static', 'copy.png')
 
 # Configuración para servir archivos estáticos (CSS, imágenes, etc.)
 @app.route('/<path:path>')
@@ -337,17 +397,34 @@ def MediaPlayerActionStop():
     except Exception as e:
         log_message(f"Error desde {client_ip}: {str(e)}")
 
+
+#-------------------------------------------
 # Configurar la interfaz gráfica con Tkinter
 root = tk.Tk()
 root.title("Server - Holyrics Web Control")
 root.resizable(False, False)
+root.configure(bg="#f0f0f0")
+
+root.option_add("*Font", "Arial 10")
+root.option_add("*Button.Font", "Arial 10 bold")
+
+bg_color = "#f0f0f0"
+btn_color = "#007ACC"
+btn_fg_color = "white"
+frame_bg_color = "#e0e0e0"
+
+def update_status():
+    ipLocal = get_local_ip()
+    port = portServer
+    url = (f"http://{ipLocal}:{port}")
+    status_text.set(f"Servidor corriendo en:\n{url}")
+    global urlRun
+    urlRun = tk.Label(root, text=url, font=("Arial", 12))
 
 # Función para mostrar notificación temporal
 def mostrar_notificacion(texto):
-    # Crear un label temporal
     notificacion = tk.Label(root, text=texto, background="lightgreen")
-    notificacion.place(x=295, y=480)  # Ajusta la posición como necesites
-    # Desaparecer el label después de 2 segundos (2000 ms)
+    notificacion.place(x=515, y=477)  # Ajusta la posición como necesites
     root.after(2000, notificacion.destroy)
 
 # Función para copiar al portapapeles
@@ -358,11 +435,15 @@ def copiar_al_portapapeles():
     mostrar_notificacion("Copiado")  # Muestra la notificación
 
 
+def open_tutorial():
+    # Enlace al video de YouTube
+    webbrowser.open("https://youtu.be/ZxcN2IjycTs")
+
 def show_about():
     about_message = (
         "☝️ PARA LA GLORIA DE DIOS ☝️\n\n"
         "Web Control para Holyrics\n"
-        "Versión: 2.1.1\n\n\n"
+        "Versión: 2.2.0\n\n\n"
         "Información de contacto:\n\n"
         "Telegram: @mark_ost7\n"
         "GitHub: https://github.com/wcmark\n"
@@ -393,12 +474,6 @@ def hide_window():
     icon = Icon("AppName", image, "My App", menu)
     threading.Thread(target=icon.run, daemon=True).start()
 
-"""
-# Función para salir completamente de la aplicación
-def quit_app(icon, item):
-    icon.stop()
-    root.quit()
-"""
 
 def close_cmd():
     # Cierra la ventana de CMD y finaliza la ejecución de Flask
@@ -418,37 +493,84 @@ menu_bar.add_cascade(label="Opciones", menu=file_menu)
 # Agregar el menú "Ayuda"
 help_menu = tk.Menu(menu_bar, tearoff=0)
 menu_bar.add_cascade(label="Ayuda", menu=help_menu)
+help_menu.add_command(label="Tutorial", command=open_tutorial)
 help_menu.add_command(label="Acerca de...", command=show_about)
 
+label_frame_title = tk.Label(root, text="Configuración", font=("Arial", 12), background="lightgray")
+label_frame_title.grid(row=0, column=0, padx=5, pady=5, sticky="ew")
+# Frame para configuración
+config_frame = tk.Frame(root, background=frame_bg_color)
+config_frame.grid(row=1, column=0, padx=5, pady=5, sticky="ew")
+
 # Campos para config.json
-tk.Label(root, text="IP del equipo de Holyrics:").grid(row=0, column=0, padx=10, pady=10, sticky="W")
-entry_ip = tk.Entry(root)
-entry_ip.grid(row=0, column=1, padx=5, pady=10)
+tk.Label(config_frame, text="IP del equipo de Holyrics:", anchor="w", background=frame_bg_color).grid(row=0, column=0, padx=5, sticky="W")
+entry_ip = tk.Entry(config_frame, justify="center")
+entry_ip.grid(row=0, column=1, padx=5, pady=5, sticky="ew")
 entry_ip.insert(0, ip)
 
-tk.Label(root, text="Token de API Holyrics.\n (Habilitar y configurar permisos):").grid(row=1, column=0, padx=10, pady=10, sticky="W")
-entry_token = tk.Entry(root, show="*")
-entry_token.grid(row=1, column=1, padx=5, pady=10)
+tk.Label(config_frame, text="Token (API Holyrics):", anchor="w", background=frame_bg_color).grid(row=1, column=0, padx=5, sticky="W")
+entry_token = tk.Entry(config_frame, show="*", justify="center")
+entry_token.grid(row=1, column=1, padx=5, pady=5, sticky="ew")
 entry_token.insert(0, token)
 
-tk.Label(root, text="Puerto (API Holyrics), por defecto 8091:").grid(row=2, column=0, padx=10, pady=10, sticky="W")
-entry_puerto = tk.Entry(root)
-entry_puerto.grid(row=2, column=1, padx=5, pady=10)
+tk.Label(config_frame, text="Puerto (API Holyrics):", anchor="w", background=frame_bg_color).grid(row=2, column=0, padx=5, sticky="W")
+entry_puerto = tk.Entry(config_frame, justify="center")
+entry_puerto.grid(row=2, column=1, padx=5, pady=5, sticky="ew")
 entry_puerto.insert(0, puerto)
 
-tk.Label(root, text="Puerto para este servidor, por defecto 5000:").grid(row=3, column=0, padx=10, pady=10, sticky="W")
-entry_portServer = tk.Entry(root)
-entry_portServer.grid(row=3, column=1, padx=5, pady=10)
+# Separador invisible en la siguiente fila
+separator = tk.Label(config_frame, text="", background=frame_bg_color)
+separator.grid(row=3, column=0, pady=5)
+
+tk.Label(config_frame, text="Puerto para este servidor:", anchor="w", background=frame_bg_color).grid(row=4, column=0, padx=5, sticky="W")
+entry_portServer = tk.Entry(config_frame, justify="center")
+entry_portServer.grid(row=4, column=1, padx=5, pady=5, sticky="ew")
 entry_portServer.insert(0, portServer)
 
+tk.Label(config_frame, text="Contraseña (opcional):", anchor="w", background=frame_bg_color).grid(row=5, column=0, padx=5, sticky="W")
+entry_password = tk.Entry(config_frame, show="*", justify="center")
+entry_password.grid(row=5, column=1, padx=5, pady=5, sticky="ew")
+entry_password.insert(0, password)
+
 # Botón para guardar configuración
-btn_save = tk.Button(root, text="Guardar Configuración", command=update_config)
-btn_save.grid(row=5, column=0, columnspan=2, padx=10, pady=10)
+btn_save = tk.Button(config_frame, text="Guardar Configuración", command=update_config, bg=btn_color, fg=btn_fg_color)
+btn_save.grid(row=6, column=0, columnspan=2, padx=5, pady=9)
+
+
+label_frame2_title = tk.Label(root, text="Control de PPT", font=("Arial", 12), background="lightgray")
+label_frame2_title.grid(row=0, column=1, padx=5, pady=5, sticky="ew")
+# Frame para configuración
+config_frame2 = tk.Frame(root, background=frame_bg_color)
+config_frame2.grid(row=1, column=1, padx=5, pady=5, sticky="ew")
+
+# Variable para controlar el estado de la casilla de verificación
+acceso_var = tk.IntVar(value=1)  # 1 = acceso permitido por defecto
+acceso_permitido = True
+
+# Casilla de verificación para activar/desactivar acceso
+estado_texto = tk.StringVar(value="Permitido")
+
+check_acceso = tk.Checkbutton(config_frame2, text="Activar acceso a /ppt: " + estado_texto.get(), variable=acceso_var, command=actualizar_acceso, background=frame_bg_color)
+check_acceso.grid(row=0, column=0, padx=5, pady=5, sticky="w")
+
+# Crear los botones de opción (radio buttons)
+opcion_var = tk.StringVar(value=selected_option)  # Valor inicial
+
+opciones = [("Widescreen", "/widescreen"), 
+            ("Text", "/text"), 
+            ("Text 2", "/text2"), 
+            ("Text 3", "/text3")]
+
+tk.Label(config_frame2, text="Selecciona una proyección de holyrics\npara mostrar en el control de diapositivas:", anchor="w", justify="left", background=frame_bg_color).grid(row=1, column=0, columnspan=2, padx=5, pady=5, sticky="w")
+
+for i, (opcion_texto, opcion_valor) in enumerate(opciones):
+    tk.Radiobutton(config_frame2, text=opcion_texto, variable=opcion_var, value=opcion_valor, command=actualizar_opcion, background=frame_bg_color).grid(row=2+i, column=0, padx=2, pady=5, sticky="w")
+
 
 # Campo de texto grande para mensajes/errores
-tk.Label(root, text="Logs:").grid(row=6, column=0, padx=10, pady=0, sticky="w")
+tk.Label(root, text="Logs:").grid(row=10, column=0, padx=5, pady=0, sticky="w")
 txt_logs = scrolledtext.ScrolledText(root, width=40, height=10)
-txt_logs.grid(row=7, column=0, columnspan=2, padx=10, pady=10, sticky="ew")
+txt_logs.grid(row=11, column=0, columnspan=2, padx=5, pady=5, sticky="ew")
 
 def log_message(message):
     txt_logs.insert(tk.END, message + '\n')
@@ -460,14 +582,11 @@ log_message("Servidor en ejecución...")
 # Etiqueta para mostrar el estado del servidor
 status_text = tk.StringVar()
 status_label = tk.Label(root, textvariable=status_text, font=("Helvetica", 12))
-status_label.grid(row=8, column=0, columnspan=2, padx=10, pady=0)
-
-# Crear una imagen PNG para el botón (opcional, cambia la ruta del archivo)
-imagen_boton = PhotoImage(file="static/copy.png")
+status_label.grid(row=12, column=0, columnspan=2, padx=10, pady=0)
 
 # Crear el botón con la imagen y el comando de copiar
-boton_copiar = tk.Button(root, image=imagen_boton, command=copiar_al_portapapeles)
-boton_copiar.grid(row=8, column=1, columnspan=2, padx=0, pady=5, sticky="n")
+boton_copiar = tk.Button(root, text="Copiar URL", command=copiar_al_portapapeles, bg=btn_color, fg=btn_fg_color)
+boton_copiar.grid(row=12, column=1, columnspan=2, padx=0, pady=5, sticky="n")
 
 
 # Actualizar el estado en la interfaz gráfica

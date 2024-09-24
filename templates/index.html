@@ -7,547 +7,560 @@
     <link rel="stylesheet" href="/static/styles.css">
 </head>
 <body>
-    <div class="contenedor_global">
+    {% if authenticated %}
+        <div class="contenedor_global">
 
-        <div class="contenedor_letras sticky-buttons">
-            <p class="title-inside">SLIDES</p>
-            <button id="ToggleF8" title="Fondo de pantalla [F8]">
-                F8
-            </button>
-            <button id="ToggleF9" title="Sin letra [F9]">
-                F9
-            </button>
-            <button id="ToggleF10" title="Pantalla negra [F10]">
-                F10
-            </button>
-            <button id="CloseCurrentPresentation" title="Cerrar presentación [ESC]">
-                <span class="material-icons">
-                    cancel_presentation
-                </span>
-            </button>
-            <button id="actionPrevious" title="Anterior [←]">
-                <span class="material-icons">
-                    arrow_back
-                </span>
-            </button>
-            <button id="actionNext" title="Siguiente [→]">
-                <span class="material-icons">
-                    arrow_forward
-                </span>
-            </button>
-        </div>
+            <div class="contenedor_letras sticky-buttons">
+                <p class="title-inside">SLIDES</p>
+                <button id="ToggleF8" title="Fondo de pantalla [F8]">
+                    F8
+                </button>
+                <button id="ToggleF9" title="Sin letra [F9]">
+                    F9
+                </button>
+                <button id="ToggleF10" title="Pantalla negra [F10]">
+                    F10
+                </button>
+                <button id="CloseCurrentPresentation" title="Cerrar presentación [ESC]">
+                    <span class="material-icons">
+                        cancel_presentation
+                    </span>
+                </button>
+                <button id="actionPrevious" title="Anterior [←]">
+                    <span class="material-icons">
+                        arrow_back
+                    </span>
+                </button>
+                <button id="actionNext" title="Siguiente [→]">
+                    <span class="material-icons">
+                        arrow_forward
+                    </span>
+                </button>
+            </div>
 
-        <div class="contenedor_botones sticky-buttons-back">
+            <div class="contenedor_botones sticky-buttons-back">
 
-            <label id="hidden" clas="hidden" for="elementId"><input class="hidden" type="text" maxlength="3" id="elementId" name="elementId"></label>
+                <label id="hidden" clas="hidden" for="elementId"><input class="hidden" type="text" maxlength="3" id="elementId" name="elementId"></label>
 
-            <button class="hidden" id="MediaPlaylistAction" title="Reproducir desde ID">
-                <span class="material-icons">
-                    play_arrow
-                </span>
-            </button>
-            <p class="title">Player</p>
-            <button id="MediaPlayerActionPause" title="Play/Pause">
-                <span class="material-symbols-outlined">
-                    play_pause
-                </span>
-            </button>
-            <button id="MediaPlayerActionStop" title="Detener reproducción">
-                <span class="material-icons">
-                    stop
-                </span>
-            </button>
-            <br>
-            <button id="GetMediaPlaylist" title="Obtener lista de reproducción">
-                <span class="material-icons">
-                    list_alt
-                </span>
-            </button>
+                <button class="hidden" id="MediaPlaylistAction" title="Reproducir desde ID">
+                    <span class="material-icons">
+                        play_arrow
+                    </span>
+                </button>
+                <p class="title">Player</p>
+                <button id="MediaPlayerActionPause" title="Play/Pause">
+                    <span class="material-symbols-outlined">
+                        play_pause
+                    </span>
+                </button>
+                <button id="MediaPlayerActionStop" title="Detener reproducción">
+                    <span class="material-icons">
+                        stop
+                    </span>
+                </button>
+                <br>
+                <button id="GetMediaPlaylist" title="Obtener lista de reproducción">
+                    <span class="material-icons">
+                        list_alt
+                    </span>
+                </button>
+                
+            </div>
             
+            
+            <div class="sticky-output">
+                <pre id="output"></pre>
+            </div>
+            
+            
+            <table id="outputTable";>
+                <thead>
+                    <tr>
+                        <th></th>
+                        <!-- <th style="padding-left: 10px;" text-align="left">Media</th> -->
+                        <th class="hidden">ID</th>
+                    </tr>
+                </thead>
+                <tbody></tbody>
+            </table>
+    
         </div>
-        
-        
-        <div class="sticky-output">
-            <pre id="output"></pre>
-        </div>
-        
-        
-        <table id="outputTable";>
-            <thead>
-                <tr>
-                    <th></th>
-                    <!-- <th style="padding-left: 10px;" text-align="left">Media</th> -->
-                    <th class="hidden">ID</th>
-                </tr>
-            </thead>
-            <tbody></tbody>
-        </table>
-   
-    </div>
 
-    <script>
-        const actionPrevious = document.getElementById('actionPrevious');
-        const actionNext = document.getElementById('actionNext');
-        const CloseCurrentPresentation = document.getElementById('CloseCurrentPresentation');
-        const GetMediaPlaylist = document.getElementById('GetMediaPlaylist');
-        const MediaPlaylistAction = document.getElementById('MediaPlaylistAction');
-        const MediaPlayerActionPause = document.getElementById('MediaPlayerActionPause');
-        const MediaPlayerActionStop = document.getElementById('MediaPlayerActionStop');
-        const ToggleF8 = document.getElementById('ToggleF8');
-        const ToggleF9 = document.getElementById('ToggleF9');
-        const ToggleF10 = document.getElementById('ToggleF10');
-        const elementIdInput = document.getElementById('elementId');
-        const outputBody = document.querySelector('#outputTable tbody');
-        const output = document.getElementById('output'); 
+        <script>
+            const actionPrevious = document.getElementById('actionPrevious');
+            const actionNext = document.getElementById('actionNext');
+            const CloseCurrentPresentation = document.getElementById('CloseCurrentPresentation');
+            const GetMediaPlaylist = document.getElementById('GetMediaPlaylist');
+            const MediaPlaylistAction = document.getElementById('MediaPlaylistAction');
+            const MediaPlayerActionPause = document.getElementById('MediaPlayerActionPause');
+            const MediaPlayerActionStop = document.getElementById('MediaPlayerActionStop');
+            const ToggleF8 = document.getElementById('ToggleF8');
+            const ToggleF9 = document.getElementById('ToggleF9');
+            const ToggleF10 = document.getElementById('ToggleF10');
+            const elementIdInput = document.getElementById('elementId');
+            const outputBody = document.querySelector('#outputTable tbody');
+            const output = document.getElementById('output'); 
 
-        ToggleF8.addEventListener('click', function() {
-            output.textContent = ""
-            fetch('/ToggleF8', {
-                method: 'POST'
-            })
-            .then(response => response.json())
-            .then(data => {
-                if (data.status === "ok") {
-                    // Destellar el botón con el contorno verde durante 1 segundo
-                    ToggleF8.classList.add('flash-green-border');
-                    setTimeout(() => {
-                        ToggleF8.classList.remove('flash-green-border');
-                    }, 1000);
-                } else {
-                    // Convertir la respuesta JSON a una sola línea (sin espacios de indentación)
-                    output.textContent = JSON.stringify(data, null, 0);
+            ToggleF8.addEventListener('click', function() {
+                output.textContent = ""
+                fetch('/ToggleF8', {
+                    method: 'POST'
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.status === "ok") {
+                        // Destellar el botón con el contorno verde durante 1 segundo
+                        ToggleF8.classList.add('flash-green-border');
+                        setTimeout(() => {
+                            ToggleF8.classList.remove('flash-green-border');
+                        }, 1000);
+                    } else {
+                        // Convertir la respuesta JSON a una sola línea (sin espacios de indentación)
+                        output.textContent = JSON.stringify(data, null, 0);
+
+                        // Destellar el botón con el contorno rojo durante 1 segundo
+                        ToggleF8.classList.add('flash-red-border');
+                        setTimeout(() => {
+                            ToggleF8.classList.remove('flash-red-border');
+                        }, 1000);
+                    }
+                })
+                .catch(error => {
+                    alert('Error: ' + error);
 
                     // Destellar el botón con el contorno rojo durante 1 segundo
                     ToggleF8.classList.add('flash-red-border');
                     setTimeout(() => {
                         ToggleF8.classList.remove('flash-red-border');
                     }, 1000);
-                }
-            })
-            .catch(error => {
-                alert('Error: ' + error);
-
-                // Destellar el botón con el contorno rojo durante 1 segundo
-                ToggleF8.classList.add('flash-red-border');
-                setTimeout(() => {
-                    ToggleF8.classList.remove('flash-red-border');
-                }, 1000);
+                });
             });
-        });
-        document.addEventListener('keydown', function(event) {
-            output.textContent = ""
-            if (event.key === 'F8') {
-                ToggleF8.click(); // Simula un clic en el botón cuando se presiona la tecla F8
-            }
-        });
+            document.addEventListener('keydown', function(event) {
+                output.textContent = ""
+                if (event.key === 'F8') {
+                    ToggleF8.click(); // Simula un clic en el botón cuando se presiona la tecla F8
+                }
+            });
 
-        ToggleF9.addEventListener('click', function() {
-            output.textContent = ""
-            fetch('/ToggleF9', {
-                method: 'POST'
-            })
-            .then(response => response.json())
-            .then(data => {
-                if (data.status === "ok") {
-                    // Destellar el botón con el contorno verde durante 1 segundo
-                    ToggleF9.classList.add('flash-green-border');
-                    setTimeout(() => {
-                        ToggleF9.classList.remove('flash-green-border');
-                    }, 1000);
-                } else {
-                    // Convertir la respuesta JSON a una sola línea (sin espacios de indentación)
-                    output.textContent = JSON.stringify(data, null, 0);
+            ToggleF9.addEventListener('click', function() {
+                output.textContent = ""
+                fetch('/ToggleF9', {
+                    method: 'POST'
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.status === "ok") {
+                        // Destellar el botón con el contorno verde durante 1 segundo
+                        ToggleF9.classList.add('flash-green-border');
+                        setTimeout(() => {
+                            ToggleF9.classList.remove('flash-green-border');
+                        }, 1000);
+                    } else {
+                        // Convertir la respuesta JSON a una sola línea (sin espacios de indentación)
+                        output.textContent = JSON.stringify(data, null, 0);
+
+                        // Destellar el botón con el contorno rojo durante 1 segundo
+                        ToggleF9.classList.add('flash-red-border');
+                        setTimeout(() => {
+                            ToggleF9.classList.remove('flash-red-border');
+                        }, 1000);
+                    }
+                })
+                .catch(error => {
+                    alert('Error: ' + error);
 
                     // Destellar el botón con el contorno rojo durante 1 segundo
                     ToggleF9.classList.add('flash-red-border');
                     setTimeout(() => {
                         ToggleF9.classList.remove('flash-red-border');
                     }, 1000);
-                }
-            })
-            .catch(error => {
-                alert('Error: ' + error);
-
-                // Destellar el botón con el contorno rojo durante 1 segundo
-                ToggleF9.classList.add('flash-red-border');
-                setTimeout(() => {
-                    ToggleF9.classList.remove('flash-red-border');
-                }, 1000);
+                });
             });
-        });
-        document.addEventListener('keydown', function(event) {
-            output.textContent = ""
-            if (event.key === 'F9') {
-                ToggleF9.click(); // Simula un clic en el botón cuando se presiona la tecla F9
-            }
-        });
+            document.addEventListener('keydown', function(event) {
+                output.textContent = ""
+                if (event.key === 'F9') {
+                    ToggleF9.click(); // Simula un clic en el botón cuando se presiona la tecla F9
+                }
+            });
 
-        ToggleF10.addEventListener('click', function() {
-            output.textContent = ""
-            fetch('/ToggleF10', {
-                method: 'POST'
-            })
-            .then(response => response.json())
-            .then(data => {
-                if (data.status === "ok") {
-                    // Destellar el botón con el contorno verde durante 1 segundo
-                    ToggleF10.classList.add('flash-green-border');
-                    setTimeout(() => {
-                        ToggleF10.classList.remove('flash-green-border');
-                    }, 1000);
-                } else {
-                    // Convertir la respuesta JSON a una sola línea (sin espacios de indentación)
-                    output.textContent = JSON.stringify(data, null, 0);
+            ToggleF10.addEventListener('click', function() {
+                output.textContent = ""
+                fetch('/ToggleF10', {
+                    method: 'POST'
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.status === "ok") {
+                        // Destellar el botón con el contorno verde durante 1 segundo
+                        ToggleF10.classList.add('flash-green-border');
+                        setTimeout(() => {
+                            ToggleF10.classList.remove('flash-green-border');
+                        }, 1000);
+                    } else {
+                        // Convertir la respuesta JSON a una sola línea (sin espacios de indentación)
+                        output.textContent = JSON.stringify(data, null, 0);
+
+                        // Destellar el botón con el contorno rojo durante 1 segundo
+                        ToggleF10.classList.add('flash-red-border');
+                        setTimeout(() => {
+                            ToggleF10.classList.remove('flash-red-border');
+                        }, 1000);
+                    }
+                })
+                .catch(error => {
+                    alert('Error: ' + error);
 
                     // Destellar el botón con el contorno rojo durante 1 segundo
                     ToggleF10.classList.add('flash-red-border');
                     setTimeout(() => {
                         ToggleF10.classList.remove('flash-red-border');
                     }, 1000);
-                }
-            })
-            .catch(error => {
-                alert('Error: ' + error);
-
-                // Destellar el botón con el contorno rojo durante 1 segundo
-                ToggleF10.classList.add('flash-red-border');
-                setTimeout(() => {
-                    ToggleF10.classList.remove('flash-red-border');
-                }, 1000);
+                });
             });
-        });
-        document.addEventListener('keydown', function(event) {
-            output.textContent = ""
-            if (event.key === 'F10') {
-                ToggleF10.click(); // Simula un clic en el botón cuando se presiona la tecla F9
-            }
-        });
+            document.addEventListener('keydown', function(event) {
+                output.textContent = ""
+                if (event.key === 'F10') {
+                    ToggleF10.click(); // Simula un clic en el botón cuando se presiona la tecla F9
+                }
+            });
 
-        actionNext.addEventListener('click', function() {
-            output.textContent = ""
-            fetch('/actionNext', {
-                method: 'POST'
-            })
-            .then(response => response.json())
-            .then(data => {
-                if (data.status === "ok") {
-                    // Destellar el botón con el contorno verde durante 1 segundo
-                    actionNext.classList.add('flash-green-border');
-                    setTimeout(() => {
-                        actionNext.classList.remove('flash-green-border');
-                    }, 1000);
-                } else {
-                    // Convertir la respuesta JSON a una sola línea (sin espacios de indentación)
-                    output.textContent = JSON.stringify(data, null, 0);
-                    
+            actionNext.addEventListener('click', function() {
+                output.textContent = ""
+                fetch('/actionNext', {
+                    method: 'POST'
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.status === "ok") {
+                        // Destellar el botón con el contorno verde durante 1 segundo
+                        actionNext.classList.add('flash-green-border');
+                        setTimeout(() => {
+                            actionNext.classList.remove('flash-green-border');
+                        }, 1000);
+                    } else {
+                        // Convertir la respuesta JSON a una sola línea (sin espacios de indentación)
+                        output.textContent = JSON.stringify(data, null, 0);
+                        
+                        // Destellar el botón con el contorno rojo durante 1 segundo
+                        actionNext.classList.add('flash-red-border');
+                        setTimeout(() => {
+                            actionNext.classList.remove('flash-red-border');
+                        }, 1000);
+                    }
+                })
+                .catch(error => {
+                    alert('Error: ' + error);
+
                     // Destellar el botón con el contorno rojo durante 1 segundo
                     actionNext.classList.add('flash-red-border');
                     setTimeout(() => {
                         actionNext.classList.remove('flash-red-border');
                     }, 1000);
-                }
-            })
-            .catch(error => {
-                alert('Error: ' + error);
-
-                // Destellar el botón con el contorno rojo durante 1 segundo
-                actionNext.classList.add('flash-red-border');
-                setTimeout(() => {
-                    actionNext.classList.remove('flash-red-border');
-                }, 1000);
+                });
             });
-        });
-        document.addEventListener('keydown', function(event) {
-            output.textContent = ""
-            if (event.key === 'ArrowRight') {
-                actionNext.click(); // Simula un clic en el botón cuando se presiona la "flecha derecha"
-            }
-        });
+            document.addEventListener('keydown', function(event) {
+                output.textContent = ""
+                if (event.key === 'ArrowRight') {
+                    actionNext.click(); // Simula un clic en el botón cuando se presiona la "flecha derecha"
+                }
+            });
 
-        actionPrevious.addEventListener('click', function() {
-            output.textContent = ""
-            fetch('/actionPrevious', {
-                method: 'POST'
-            })
-            .then(response => response.json())
-            .then(data => {
-                if (data.status === "ok") {
-                    // Destellar el botón con el contorno verde durante 1 segundo
-                    actionPrevious.classList.add('flash-green-border');
-                    setTimeout(() => {
-                        actionPrevious.classList.remove('flash-green-border');
-                    }, 1000);
-                } else {
-                    // Convertir la respuesta JSON a una sola línea (sin espacios de indentación)
-                    output.textContent = JSON.stringify(data, null, 0);
+            actionPrevious.addEventListener('click', function() {
+                output.textContent = ""
+                fetch('/actionPrevious', {
+                    method: 'POST'
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.status === "ok") {
+                        // Destellar el botón con el contorno verde durante 1 segundo
+                        actionPrevious.classList.add('flash-green-border');
+                        setTimeout(() => {
+                            actionPrevious.classList.remove('flash-green-border');
+                        }, 1000);
+                    } else {
+                        // Convertir la respuesta JSON a una sola línea (sin espacios de indentación)
+                        output.textContent = JSON.stringify(data, null, 0);
+
+                        // Destellar el botón con el contorno rojo durante 1 segundo
+                        actionPrevious.classList.add('flash-red-border');
+                        setTimeout(() => {
+                            actionPrevious.classList.remove('flash-red-border');
+                        }, 1000);
+                    }
+                })
+                .catch(error => {
+                    alert('Error: ' + error);
 
                     // Destellar el botón con el contorno rojo durante 1 segundo
                     actionPrevious.classList.add('flash-red-border');
                     setTimeout(() => {
                         actionPrevious.classList.remove('flash-red-border');
                     }, 1000);
-                }
-            })
-            .catch(error => {
-                alert('Error: ' + error);
-
-                // Destellar el botón con el contorno rojo durante 1 segundo
-                actionPrevious.classList.add('flash-red-border');
-                setTimeout(() => {
-                    actionPrevious.classList.remove('flash-red-border');
-                }, 1000);
-            });
-        });
-        document.addEventListener('keydown', function(event) {
-            if (event.key === 'ArrowLeft') {
-                actionPrevious.click(); // Simula un clic en el botón cuando se presiona la "flecha derecha"
-            }
-        });
-
-        // Función para mostrar el icono en el HTML
-        function mostrarIcono(tipo) {
-            const icono = tipoIconos[tipo] || 'help'; // Si no se encuentra el tipo, se usa un icono de ayuda por defecto
-            return `<span class="material-icons">${icono}</span>`;
-        }
-        // Crea un mapa que asocie el tipo con el nombre del archivo de icono
-        const tipoIconos = {
-            title: 'horizontal_rule',
-            song: 'lyrics',
-            verse: 'menu_book',
-            text: 'text_fields',
-            audio: 'audiotrack',
-            video: 'movie',
-            image: 'image',
-            file: 'file_present',
-            announcement: 'campaign',
-            automatic_presentation: 'amp_stories',
-            countdown: 'timer',
-            countdown_cp: 'timer',
-            cp_text: 'text_fields',
-            plain_text: 'text_fields',
-            uri: 'link',
-            global_action: 'settings',
-            api: 'api',
-            script: 'code',
-            
-        };
-
-        GetMediaPlaylist.addEventListener('click', function() {
-            fetch('/GetMediaPlaylist', {
-                method: 'POST'
-            })
-            .then(response => response.json())
-            .then(data => {
-                 // Filtrar solo las propiedades "id", "name" y "type" del array
-                 const filteredData = data.data.map(item => {
-                    return {
-                        type: item.type,
-                        id: item.id,
-                        name: extractFileName(item.name), // Llama a una función para extraer el nombre del archivo
-                        
-                    };
                 });
-
-                // Generar la tabla con los datos filtrados
-                outputBody.innerHTML = filteredData.map(item => {
-                    const isTitle = item.type === 'title';
-                    const nameClass = isTitle ? 'title-type' : 'lineaid';
-
-                    // Obtiene el nombre del archivo de icono según el tipo
-                    const iconName = tipoIconos[item.type] || '';
-
-                    return `
-                        <tr>
-                            <td ${isTitle ? 'class="title-type"' : ''} align="right">
-                                <span class="material-icons">${tipoIconos[item.type] || 'help'}</span>
-                            </td>
-                            <td class="${nameClass}">${item.name}</td>
-                            <td class="hidden">${item.id}</td>
-                        </tr>
-                    `;
-                }).join('');
-            })
-            .catch(error => {
-                outputBody.innerHTML = `<tr><td colspan="3">Error: ${error}</td></tr>`;
             });
-        })
-        
+            document.addEventListener('keydown', function(event) {
+                if (event.key === 'ArrowLeft') {
+                    actionPrevious.click(); // Simula un clic en el botón cuando se presiona la "flecha derecha"
+                }
+            });
 
-        
-
-        // Función para extraer el nombre del archivo de una ruta
-        function extractFileName(path) {
-            const parts = path.split('\\'); // Divide la ruta en partes usando el separador de carpeta (en Windows)
-            return parts[parts.length - 1]; // Devuelve la última parte que es el nombre del archivo
-        }
-
-        MediaPlaylistAction.addEventListener('click', function() {
-
-            const elementId = elementIdInput.value; // Obtener el valor ingresado por el usuario
-            const data = {
-                id: elementId // Crear un objeto con el ID del elemento
+            // Función para mostrar el icono en el HTML
+            function mostrarIcono(tipo) {
+                const icono = tipoIconos[tipo] || 'help'; // Si no se encuentra el tipo, se usa un icono de ayuda por defecto
+                return `<span class="material-icons">${icono}</span>`;
+            }
+            // Crea un mapa que asocie el tipo con el nombre del archivo de icono
+            const tipoIconos = {
+                title: 'horizontal_rule',
+                song: 'lyrics',
+                verse: 'menu_book',
+                text: 'text_fields',
+                audio: 'audiotrack',
+                video: 'movie',
+                image: 'image',
+                file: 'file_present',
+                announcement: 'campaign',
+                automatic_presentation: 'amp_stories',
+                countdown: 'timer',
+                countdown_cp: 'timer',
+                cp_text: 'text_fields',
+                plain_text: 'text_fields',
+                uri: 'link',
+                global_action: 'settings',
+                api: 'api',
+                script: 'code',
+                
             };
-            output.textContent = ""
-            fetch('/MediaPlaylistAction', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify(data) // Convertir el objeto a una cadena JSON y enviarlo en el cuerpo de la solicitud
+
+            GetMediaPlaylist.addEventListener('click', function() {
+                fetch('/GetMediaPlaylist', {
+                    method: 'POST'
+                })
+                .then(response => response.json())
+                .then(data => {
+                    // Filtrar solo las propiedades "id", "name" y "type" del array
+                    const filteredData = data.data.map(item => {
+                        return {
+                            type: item.type,
+                            id: item.id,
+                            name: extractFileName(item.name), // Llama a una función para extraer el nombre del archivo
+                            
+                        };
+                    });
+
+                    // Generar la tabla con los datos filtrados
+                    outputBody.innerHTML = filteredData.map(item => {
+                        const isTitle = item.type === 'title';
+                        const nameClass = isTitle ? 'title-type' : 'lineaid';
+
+                        // Obtiene el nombre del archivo de icono según el tipo
+                        const iconName = tipoIconos[item.type] || '';
+
+                        return `
+                            <tr>
+                                <td ${isTitle ? 'class="title-type"' : ''} align="right">
+                                    <span class="material-icons">${tipoIconos[item.type] || 'help'}</span>
+                                </td>
+                                <td class="${nameClass}">${item.name}</td>
+                                <td class="hidden">${item.id}</td>
+                            </tr>
+                        `;
+                    }).join('');
+                })
+                .catch(error => {
+                    outputBody.innerHTML = `<tr><td colspan="3">Error: ${error}</td></tr>`;
+                });
             })
-            .then(response => response.json())
-            .then(data => {
-                if (data.status === "ok") {
-                    // Destellar el botón con el contorno verde durante 1 segundo
-                    MediaPlaylistAction.classList.add('flash-green-border');
-                    setTimeout(() => {
-                        MediaPlaylistAction.classList.remove('flash-green-border');
-                    }, 1000);
-                } else {
-                    // Convertir la respuesta JSON a una sola línea (sin espacios de indentación)
-                    output.textContent = JSON.stringify(data, null, 0);
+            
+
+            
+
+            // Función para extraer el nombre del archivo de una ruta
+            function extractFileName(path) {
+                const parts = path.split('\\'); // Divide la ruta en partes usando el separador de carpeta (en Windows)
+                return parts[parts.length - 1]; // Devuelve la última parte que es el nombre del archivo
+            }
+
+            MediaPlaylistAction.addEventListener('click', function() {
+
+                const elementId = elementIdInput.value; // Obtener el valor ingresado por el usuario
+                const data = {
+                    id: elementId // Crear un objeto con el ID del elemento
+                };
+                output.textContent = ""
+                fetch('/MediaPlaylistAction', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(data) // Convertir el objeto a una cadena JSON y enviarlo en el cuerpo de la solicitud
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.status === "ok") {
+                        // Destellar el botón con el contorno verde durante 1 segundo
+                        MediaPlaylistAction.classList.add('flash-green-border');
+                        setTimeout(() => {
+                            MediaPlaylistAction.classList.remove('flash-green-border');
+                        }, 1000);
+                    } else {
+                        // Convertir la respuesta JSON a una sola línea (sin espacios de indentación)
+                        output.textContent = JSON.stringify(data, null, 0);
+
+                        // Destellar el botón con el contorno rojo durante 1 segundo
+                        MediaPlaylistAction.classList.add('flash-red-border');
+                        setTimeout(() => {
+                            MediaPlaylistAction.classList.remove('flash-red-border');
+                        }, 1000);
+                    }
+                })
+                .catch(error => {
+                    alert('Error: ' + error);
 
                     // Destellar el botón con el contorno rojo durante 1 segundo
                     MediaPlaylistAction.classList.add('flash-red-border');
                     setTimeout(() => {
                         MediaPlaylistAction.classList.remove('flash-red-border');
                     }, 1000);
-                }
+                });
             })
-            .catch(error => {
-                alert('Error: ' + error);
 
-                // Destellar el botón con el contorno rojo durante 1 segundo
-                MediaPlaylistAction.classList.add('flash-red-border');
-                setTimeout(() => {
-                    MediaPlaylistAction.classList.remove('flash-red-border');
-                }, 1000);
-            });
-        })
+            CloseCurrentPresentation.addEventListener('click', function() {
+                output.textContent = ""
+                fetch('/CloseCurrentPresentation', {
+                    method: 'POST'
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.status === "ok") {
+                        // Destellar el botón con el contorno verde durante 1 segundo
+                        CloseCurrentPresentation.classList.add('flash-green-border');
+                        setTimeout(() => {
+                            CloseCurrentPresentation.classList.remove('flash-green-border');
+                        }, 1000);
+                    } else {
+                        // Convertir la respuesta JSON a una sola línea (sin espacios de indentación)
+                        output.textContent = JSON.stringify(data, null, 0);
 
-        CloseCurrentPresentation.addEventListener('click', function() {
-            output.textContent = ""
-            fetch('/CloseCurrentPresentation', {
-                method: 'POST'
-            })
-            .then(response => response.json())
-            .then(data => {
-                if (data.status === "ok") {
-                    // Destellar el botón con el contorno verde durante 1 segundo
-                    CloseCurrentPresentation.classList.add('flash-green-border');
-                    setTimeout(() => {
-                        CloseCurrentPresentation.classList.remove('flash-green-border');
-                    }, 1000);
-                } else {
-                    // Convertir la respuesta JSON a una sola línea (sin espacios de indentación)
-                    output.textContent = JSON.stringify(data, null, 0);
+                        // Destellar el botón con el contorno rojo durante 1 segundo
+                        CloseCurrentPresentation.classList.add('flash-red-border');
+                        setTimeout(() => {
+                            CloseCurrentPresentation.classList.remove('flash-red-border');
+                        }, 1000);
+                    }
+                })
+                .catch(error => {
+                    alert('Error: ' + error);
 
                     // Destellar el botón con el contorno rojo durante 1 segundo
                     CloseCurrentPresentation.classList.add('flash-red-border');
                     setTimeout(() => {
                         CloseCurrentPresentation.classList.remove('flash-red-border');
                     }, 1000);
+                });
+            })
+            document.addEventListener('keydown', function(event) {
+                if (event.key === 'Escape') {
+                    CloseCurrentPresentation.click(); // Simula un clic en el botón cuando se presiona Escape
                 }
-            })
-            .catch(error => {
-                alert('Error: ' + error);
-
-                // Destellar el botón con el contorno rojo durante 1 segundo
-                CloseCurrentPresentation.classList.add('flash-red-border');
-                setTimeout(() => {
-                    CloseCurrentPresentation.classList.remove('flash-red-border');
-                }, 1000);
             });
-        })
-        document.addEventListener('keydown', function(event) {
-            if (event.key === 'Escape') {
-                CloseCurrentPresentation.click(); // Simula un clic en el botón cuando se presiona Escape
-            }
-        });
 
-        MediaPlayerActionPause.addEventListener('click', function() {
-            output.textContent = ""
-            fetch('/MediaPlayerActionPause', {
-                method: 'POST',
-                body: {"action": "pause"}
-            })
-            .then(response => response.json())
-            .then(data => {
-                if (data.status === "ok") {
-                    // Destellar el botón con el contorno verde durante 1 segundo
-                    MediaPlayerActionPause.classList.add('flash-green-border');
-                    setTimeout(() => {
-                        MediaPlayerActionPause.classList.remove('flash-green-border');
-                    }, 1000);
-                } else {
-                    // Convertir la respuesta JSON a una sola línea (sin espacios de indentación)
-                    output.textContent = JSON.stringify(data, null, 0);
+            MediaPlayerActionPause.addEventListener('click', function() {
+                output.textContent = ""
+                fetch('/MediaPlayerActionPause', {
+                    method: 'POST',
+                    body: {"action": "pause"}
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.status === "ok") {
+                        // Destellar el botón con el contorno verde durante 1 segundo
+                        MediaPlayerActionPause.classList.add('flash-green-border');
+                        setTimeout(() => {
+                            MediaPlayerActionPause.classList.remove('flash-green-border');
+                        }, 1000);
+                    } else {
+                        // Convertir la respuesta JSON a una sola línea (sin espacios de indentación)
+                        output.textContent = JSON.stringify(data, null, 0);
+
+                        // Destellar el botón con el contorno rojo durante 1 segundo
+                        MediaPlayerActionPause.classList.add('flash-red-border');
+                        setTimeout(() => {
+                            MediaPlayerActionPause.classList.remove('flash-red-border');
+                        }, 1000);
+                    }
+                })
+                .catch(error => {
+                    alert('Error: ' + error);
 
                     // Destellar el botón con el contorno rojo durante 1 segundo
                     MediaPlayerActionPause.classList.add('flash-red-border');
                     setTimeout(() => {
                         MediaPlayerActionPause.classList.remove('flash-red-border');
                     }, 1000);
-                }
+                });
             })
-            .catch(error => {
-                alert('Error: ' + error);
 
-                // Destellar el botón con el contorno rojo durante 1 segundo
-                MediaPlayerActionPause.classList.add('flash-red-border');
-                setTimeout(() => {
-                    MediaPlayerActionPause.classList.remove('flash-red-border');
-                }, 1000);
-            });
-        })
+            MediaPlayerActionStop.addEventListener('click', function() {
+                output.textContent = ""
+                fetch('/MediaPlayerActionStop', {
+                    method: 'POST',
+                    body: {"action": "stop"}
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.status === "ok") {
+                        // Destellar el botón con el contorno verde durante 1 segundo
+                        MediaPlayerActionStop.classList.add('flash-green-border');
+                        setTimeout(() => {
+                            MediaPlayerActionStop.classList.remove('flash-green-border');
+                        }, 1000);
+                    } else {
+                        // Convertir la respuesta JSON a una sola línea (sin espacios de indentación)
+                        output.textContent = JSON.stringify(data, null, 0);
 
-        MediaPlayerActionStop.addEventListener('click', function() {
-            output.textContent = ""
-            fetch('/MediaPlayerActionStop', {
-                method: 'POST',
-                body: {"action": "stop"}
-            })
-            .then(response => response.json())
-            .then(data => {
-                if (data.status === "ok") {
-                    // Destellar el botón con el contorno verde durante 1 segundo
-                    MediaPlayerActionStop.classList.add('flash-green-border');
-                    setTimeout(() => {
-                        MediaPlayerActionStop.classList.remove('flash-green-border');
-                    }, 1000);
-                } else {
-                    // Convertir la respuesta JSON a una sola línea (sin espacios de indentación)
-                    output.textContent = JSON.stringify(data, null, 0);
+                        // Destellar el botón con el contorno rojo durante 1 segundo
+                        MediaPlayerActionStop.classList.add('flash-red-border');
+                        setTimeout(() => {
+                            MediaPlayerActionStop.classList.remove('flash-red-border');
+                        }, 1000);
+                    }
+                })
+                .catch(error => {
+                    alert('Error: ' + error);
 
                     // Destellar el botón con el contorno rojo durante 1 segundo
                     MediaPlayerActionStop.classList.add('flash-red-border');
                     setTimeout(() => {
                         MediaPlayerActionStop.classList.remove('flash-red-border');
                     }, 1000);
-                }
+                });
             })
-            .catch(error => {
-                alert('Error: ' + error);
 
-                // Destellar el botón con el contorno rojo durante 1 segundo
-                MediaPlayerActionStop.classList.add('flash-red-border');
-                setTimeout(() => {
-                    MediaPlayerActionStop.classList.remove('flash-red-border');
-                }, 1000);
+            // Agregar evento de clic a las celdas que contienen el ID en la tabla
+            outputTable.addEventListener('click', function(event) {
+                const clickedElement = event.target;
+                if (clickedElement.tagName === 'TD' && clickedElement.parentElement.cells[1] === clickedElement) {
+                    const idValue = clickedElement.parentElement.cells[2].textContent; // Obtén el ID de la columna ID
+                    elementIdInput.value = idValue;
+                    MediaPlaylistAction.click(); // Disparar evento click del botón de reproducción
+                }
             });
-        })
-
-        // Agregar evento de clic a las celdas que contienen el ID en la tabla
-        outputTable.addEventListener('click', function(event) {
-            const clickedElement = event.target;
-            if (clickedElement.tagName === 'TD' && clickedElement.parentElement.cells[1] === clickedElement) {
-                const idValue = clickedElement.parentElement.cells[2].textContent; // Obtén el ID de la columna ID
-                elementIdInput.value = idValue;
-                MediaPlaylistAction.click(); // Disparar evento click del botón de reproducción
-            }
-        });
 
 
-    </script>
+        </script>
+
+    {% else %}
+        <div>
+            <!-- Mostrar solo el formulario de contraseña cuando no esté autenticado -->
+            <!-- <h3>Introduce la contraseña para acceder:</h3> -->
+            <form method="POST" class="login">
+                <label for="password">Contraseña:</label>
+                <input type="password" id="password" name="password" required>
+                <button type="submit">Acceder</button>
+            </form>
+        </div>
+    {% endif %}
 </body>
 </html>

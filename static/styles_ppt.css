@@ -1,0 +1,90 @@
+body {
+    background: black;
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+    height: 100vh;
+    margin: 0;
+    padding: 0;
+}
+
+button {
+    padding: 5px 5px; /* Espaciado interno del botón o etiqueta */
+    color: white; /* Color del texto dentro del botón o etiqueta */
+    background-color: rgb(48, 15, 85);
+    border: none; /* Sin borde */
+    border-radius: 5px; /* Radio de las esquinas del botón o etiqueta para que tenga bordes redondeados */
+    margin-top: 2px;
+    margin-bottom: 2px;
+    cursor: pointer; /* Cambia el cursor a una mano cuando el botón o etiqueta es interactivo */
+    min-width: 70px;
+    width: 80px;
+    height: 98vh;
+    outline: none;
+    -webkit-touch-callout: none;
+    -webkit-user-select: none;
+    -khtml-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+    touch-action: manipulation;
+    
+}
+
+button:hover{
+    background-color: #326c7a;
+    color: white;
+}
+
+/* Estilo cuando se presiona el botón */
+button:active {
+    background-color: rgb(48, 15, 85); /* O el color que desees */
+    color: white;
+}
+
+/* Restablece el color después del toque (para evitar que se quede el cambio en móviles) */
+button:focus {
+    background-color: rgb(48, 15, 85); /* Restablece al color original */
+    color: white;
+    outline: none; /* Elimina el borde de enfoque que puede aparecer en algunos navegadores */
+}
+
+#botonIzquierda img, #botonDerecha img {
+    width: 200px; /* Ajusta el ancho de los botones según tus necesidades */
+    height: 200px; /* Ajusta la altura de los botones según tus necesidades */
+    border: none;
+    color: white;
+}
+
+.btn2{
+    padding: 5;
+
+}
+
+#sitioCentro {
+    flex: 1;
+    text-align: center;
+    width: 95%; /* Ajusta el ancho del contenedor del iframe */
+    height: 95%; /* Ajusta la altura del contenedor del iframe */
+    
+}
+
+#iframeContainer {
+    width: 100%; /* Ajusta el ancho del contenedor del iframe */
+    height: 100%; /* Ajusta la altura del contenedor del iframe */
+    -webkit-touch-callout: none;
+    -webkit-user-select: none;
+    -khtml-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+}
+
+/* Manejo de hover en dispositivos móviles */
+@media (hover: none) {
+    button:hover {
+        background-color: rgb(48, 15, 85); /* No aplicar hover en móviles */
+        color: white;
+    }
+}

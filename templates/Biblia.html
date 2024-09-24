@@ -7,48 +7,60 @@
     <link rel="stylesheet" href="/static/styles_biblia.css">
 </head>
 <body>
-    <header>
-            <div id="noVerseReference"><h3>Biblia OBS - Holyrics</h3></div>
-            <div id="verseReference"></div>  <!-- Aquí irá la referencia -->
-            <button id="clearSelection">Borrar</button> <!-- Botón para borrar la selección -->
+    {% if authenticated %}
+        <header>
+                <div id="noVerseReference"><h3>Biblia OBS - Holyrics</h3></div>
+                <div id="verseReference"></div>  <!-- Aquí irá la referencia -->
+                <button id="clearSelection">Borrar</button> <!-- Botón para borrar la selección -->
+            
+        </header>
+        <div class="container">
+            <nav>
+            <!--    <h2>Libros</h2> -->
+                <div class="books-lists">
+                    <div class="books-column">
+                        <h5>Antiguo Testamento</h5>
+                        <ul id="booksListAT"></ul>
+                    </div>
+                    <div class="books-column">
+                        <h5>Nuevo Testamento</h5>
+                        <ul id="booksListNT"></ul>
+                    </div>
+                </div>
+            </nav>
+            <main>         
+                <section class="chapter-section">
+                    <h2>Capítulos</h2>
+                    <ul id="chaptersList"></ul>
+                </section>
+                <section class="verse-section">
+                    <h2>Versículos</h2>
+                    <ul id="versesList"></ul>
+                </section>
+            </main>
+        </div>
+        <button id="backToTopButton" title="Volver Arriba">^</button>
+        <script src="/static/script.js"></script>
         
-    </header>
-    <div class="container">
-        <nav>
-        <!--    <h2>Libros</h2> -->
-            <div class="books-lists">
-                <div class="books-column">
-                    <h5>Antiguo Testamento</h5>
-                    <ul id="booksListAT"></ul>
-                </div>
-                <div class="books-column">
-                    <h5>Nuevo Testamento</h5>
-                    <ul id="booksListNT"></ul>
-                </div>
-            </div>
-        </nav>
-        <main>         
-            <section class="chapter-section">
-                <h2>Capítulos</h2>
-                <ul id="chaptersList"></ul>
-            </section>
-            <section class="verse-section">
-                <h2>Versículos</h2>
-                <ul id="versesList"></ul>
-            </section>
-        </main>
-    </div>
-    <button id="backToTopButton" title="Volver Arriba">^</button>
-    <script src="/static/script.js"></script>
-    
-    <div id="search-container">
-        <input type="text" id="search-books" placeholder="Buscar libro" />
-        <input type="text" id="search-chapters" placeholder="Buscar capítulo" />
-        <input type="text" id="search-verses" placeholder="Buscar versículo" />
-        <button id="clear-selection">X</button>
-    </div>
-    <div id="suggestions-bcontainer"></div>
-    <div id="suggestions-container"></div>
-    <div id="suggestions-vcontainer"></div>
+        <div id="search-container">
+            <input type="text" id="search-books" placeholder="Buscar libro" />
+            <input type="text" id="search-chapters" placeholder="Buscar capítulo" />
+            <input type="text" id="search-verses" placeholder="Buscar versículo" />
+            <button id="clear-selection">X</button>
+        </div>
+        <div id="suggestions-bcontainer"></div>
+        <div id="suggestions-container"></div>
+        <div id="suggestions-vcontainer"></div>
+    {% else %}
+        <div>
+            <!-- Mostrar solo el formulario de contraseña cuando no esté autenticado -->
+            <!-- <h3>Introduce la contraseña para acceder:</h3> -->
+            <form method="POST" class="login">
+                <label for="password">Contraseña:</label>
+                <input type="password" id="password" name="password" required>
+                <button type="submit">Acceder</button>
+            </form>
+        </div>
+    {% endif %}
 </body>
 </html>
