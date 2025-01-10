@@ -274,7 +274,7 @@ document.addEventListener('DOMContentLoaded', function() {
         const verseID = generateVerseID(bookNumber, chapter, verse);
         const url = `http://${ip}:${puerto}/api/ShowVerse?token=${token}`;
 
-        const data = { id: verseID };
+        const data = { id: verseID, quick_presentation: true };
 
         fetch(url, {
             method: 'POST',
@@ -349,7 +349,7 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     function sendCloseCurrentPresentation() {
-        const url = `http://${ip}:${puerto}/api/CloseCurrentPresentation?token=${token}`;
+        const url = `http://${ip}:${puerto}/api/CloseCurrentQuickPresentation?token=${token}`;
         const data = {};
 
         fetch(url, { 

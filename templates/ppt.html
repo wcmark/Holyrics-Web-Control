@@ -100,7 +100,7 @@
 
     document.addEventListener('keydown', function(event) {
         output.textContent = ""
-        if (event.key === 'ArrowRight') {
+        if (event.key === 'ArrowRight' || event.key === 'PageDown' ) {
             actionNext.click(); // Simula un clic en el botón cuando se presiona la "flecha derecha"
         }
     });
@@ -141,7 +141,7 @@
     });
 
     document.addEventListener('keydown', function(event) {
-        if (event.key === 'ArrowLeft') {
+        if (event.key === 'ArrowLeft' || event.key === 'PageUp') {
             actionPrevious.click(); // Simula un clic en el botón cuando se presiona la "flecha derecha"
         }
     });
