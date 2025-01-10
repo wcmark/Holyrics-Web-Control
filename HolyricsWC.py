@@ -38,7 +38,7 @@ def index():
             session['authenticated'] = True
             authenticated = True
         else:
-            return "Incorrecta", 403
+            return "Contraseña Incorrecta", 403
     return render_template('index.html', authenticated=authenticated)
 @app.route('/api/config')
 def get_config():
@@ -82,7 +82,7 @@ def biblia():
             session['authenticated'] = True
             authenticated = True
         else:
-            return "Incorrecta", 403
+            return "Contraseña Incorrecta", 403
     return render_template('Biblia.html', authenticated=authenticated)
 @app.route('/ppt')
 def ppt():
@@ -298,6 +298,9 @@ def MediaPlayerActionStop():
             return jsonify({'error': 'Error al realizar la solicitud', 'status_code': response.status_code, 'text': response.text})
     except Exception as e:
         log_message(f"Error desde {client_ip}: {str(e)}")
+
+#-------------------------------------------
+# Configurar la interfaz gráfica con Tkinter
 root = tk.Tk()
 root.title("Server - Holyrics Web Control")
 root.resizable(False, False)
@@ -326,6 +329,22 @@ def copiar_al_portapapeles():
     mostrar_notificacion("Copiado")
 def open_tutorial():
     webbrowser.open("https://youtu.be/ZxcN2IjycTs")
+
+def show_about():
+    about_message = (
+        "☝️ PARA LA GLORIA DE DIOS ☝️\n\n"
+        "Web Control para Holyrics\n"
+        "Versión: 2.2.0\n\n\n"
+        "Información de contacto:\n\n"
+        "Telegram: @mark_ost7\n"
+        "GitHub: https://github.com/wcmark\n"
+        "YouTube personal: @Marcos-Tapia\n"
+        "YouTube de la iglesia: @ice-lapaz\n\n"
+        "San Miguel del Monte, Bs. As. - Argentina\n"
+    )
+    messagebox.showinfo("Acerca de...", about_message)
+    
+# Función para crear el ícono de la bandeja (simple ejemplo con un círculo)
 def create_image():
     image = Image.new('RGB', (64, 64), color=(255, 255, 255))
     draw = ImageDraw.Draw(image)
@@ -346,11 +365,12 @@ root.protocol("WM_DELETE_WINDOW", close_cmd)
 menu_bar = Menu(root)
 root.config(menu=menu_bar)
 file_menu = Menu(menu_bar, tearoff=0)
-file_menu.add_command(label="Minimizar", command=hide_window)
+file_menu.add_command(label="Minimizar a la bandeja del sistema", command=hide_window)
 menu_bar.add_cascade(label="Opciones", menu=file_menu)
 help_menu = tk.Menu(menu_bar, tearoff=0)
 menu_bar.add_cascade(label="Ayuda", menu=help_menu)
 help_menu.add_command(label="Tutorial", command=open_tutorial)
+help_menu.add_command(label="Acerca de...", command=show_about)
 label_frame_title = tk.Label(root, text="Configuración", font=("Arial", 12), background="lightgray")
 label_frame_title.grid(row=0, column=0, padx=5, pady=5, sticky="ew")
 config_frame = tk.Frame(root, background=frame_bg_color)
