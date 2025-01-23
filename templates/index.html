@@ -9,64 +9,64 @@
 <body>
     {% if authenticated %}
         <div class="contenedor_global">
+            <dvi class="contenedor_top">
+                <div class="contenedor_letras sticky-buttons">
+                    <p class="title-inside">SLIDES</p>
+                    <button id="ToggleF8" title="Fondo de pantalla [F8]">
+                        F8
+                    </button>
+                    <button id="ToggleF9" title="Sin letra [F9]">
+                        F9
+                    </button>
+                    <button id="ToggleF10" title="Pantalla negra [F10]">
+                        F10
+                    </button>
+                    <button id="CloseCurrentPresentation" title="Cerrar presentación [ESC]">
+                        <span class="material-icons">
+                            cancel_presentation
+                        </span>
+                    </button>
+                    <button id="actionPrevious" title="Anterior [←]">
+                        <span class="material-icons">
+                            arrow_back
+                        </span>
+                    </button>
+                    <button id="actionNext" title="Siguiente [→]">
+                        <span class="material-icons">
+                            arrow_forward
+                        </span>
+                    </button>
+                </div>
 
-            <div class="contenedor_letras sticky-buttons">
-                <p class="title-inside">SLIDES</p>
-                <button id="ToggleF8" title="Fondo de pantalla [F8]">
-                    F8
-                </button>
-                <button id="ToggleF9" title="Sin letra [F9]">
-                    F9
-                </button>
-                <button id="ToggleF10" title="Pantalla negra [F10]">
-                    F10
-                </button>
-                <button id="CloseCurrentPresentation" title="Cerrar presentación [ESC]">
-                    <span class="material-icons">
-                        cancel_presentation
-                    </span>
-                </button>
-                <button id="actionPrevious" title="Anterior [←]">
-                    <span class="material-icons">
-                        arrow_back
-                    </span>
-                </button>
-                <button id="actionNext" title="Siguiente [→]">
-                    <span class="material-icons">
-                        arrow_forward
-                    </span>
-                </button>
-            </div>
+                <div class="contenedor_botones sticky-buttons-back">
 
-            <div class="contenedor_botones sticky-buttons-back">
+                    <label id="hidden" clas="hidden" for="elementId"><input class="hidden" type="text" maxlength="3" id="elementId" name="elementId"></label>
 
-                <label id="hidden" clas="hidden" for="elementId"><input class="hidden" type="text" maxlength="3" id="elementId" name="elementId"></label>
-
-                <button class="hidden" id="MediaPlaylistAction" title="Reproducir desde ID">
-                    <span class="material-icons">
-                        play_arrow
-                    </span>
-                </button>
-                <p class="title">Player</p>
-                <button id="MediaPlayerActionPause" title="Play/Pause">
-                    <span class="material-symbols-outlined">
-                        play_pause
-                    </span>
-                </button>
-                <button id="MediaPlayerActionStop" title="Detener reproducción">
-                    <span class="material-icons">
-                        stop
-                    </span>
-                </button>
-                <br>
-                <button id="GetMediaPlaylist" title="Obtener lista de reproducción">
-                    <span class="material-icons">
-                        list_alt
-                    </span>
-                </button>
-                
-            </div>
-            
+                    <button class="hidden" id="MediaPlaylistAction" title="Reproducir desde ID">
+                        <span class="material-icons">
+                            play_arrow
+                        </span>
+                    </button>
+                    <p class="title">Player</p>
+                    <button id="MediaPlayerActionPause" title="Play/Pause">
+                        <span class="material-symbols-outlined">
+                            play_pause
+                        </span>
+                    </button>
+                    <button id="MediaPlayerActionStop" title="Detener reproducción">
+                        <span class="material-icons">
+                            stop
+                        </span>
+                    </button>
+                    <br>
+                    <button id="GetMediaPlaylist" title="Obtener lista de reproducción">
+                        <span class="material-icons">
+                            list_alt
+                        </span>
+                    </button>
+                    
+                </div>
+            </dvi>
             
             <div class="sticky-output">
                 <pre id="output"></pre>
@@ -83,7 +83,25 @@
                 </thead>
                 <tbody></tbody>
             </table>
-    
+            
+            <div id="footer" class="footer">
+                <p>Diapositivas:</p>
+                <div>
+                    <label>
+                        <input type="checkbox" id="startFromZero">
+                        Comenzar en 0
+                    </label>
+                </div>
+                <div id="slides" class="slides-container">
+                    <!-- Aquí se cargarán las diapositivas -->
+                </div>
+                <button id="reloadSlides" title="Recargar diapositivas">
+                    <span class="material-icons">
+                        refresh
+                    </span>
+                </button>    
+            </div>
+
         </div>
 
         <script>
@@ -97,9 +115,12 @@
             const ToggleF8 = document.getElementById('ToggleF8');
             const ToggleF9 = document.getElementById('ToggleF9');
             const ToggleF10 = document.getElementById('ToggleF10');
+            const reloadSlides = document.getElementById('reloadSlides');
             const elementIdInput = document.getElementById('elementId');
             const outputBody = document.querySelector('#outputTable tbody');
-            const output = document.getElementById('output'); 
+            const output = document.getElementById('output');
+            const slidesContainer = document.getElementById('slides');
+            const startFromZeroCheckbox = document.getElementById('startFromZero');
 
             ToggleF8.addEventListener('click', function() {
                 output.textContent = ""
@@ -237,6 +258,9 @@
                         setTimeout(() => {
                             actionNext.classList.remove('flash-green-border');
                         }, 1000);
+                        setTimeout(() => {
+                            loadSlides(); // Llama a la función después de x segundos (en ms)
+                        }, 150);
                     } else {
                         // Convertir la respuesta JSON a una sola línea (sin espacios de indentación)
                         output.textContent = JSON.stringify(data, null, 0);
@@ -278,6 +302,9 @@
                         setTimeout(() => {
                             actionPrevious.classList.remove('flash-green-border');
                         }, 1000);
+                        setTimeout(() => {
+                            loadSlides(); // Llama a la función después de x segundos (en ms)
+                        }, 150);
                     } else {
                         // Convertir la respuesta JSON a una sola línea (sin espacios de indentación)
                         output.textContent = JSON.stringify(data, null, 0);
@@ -371,10 +398,8 @@
                 .catch(error => {
                     outputBody.innerHTML = `<tr><td colspan="3">Error: ${error}</td></tr>`;
                 });
+                loadSlides();
             })
-            
-
-            
 
             // Función para extraer el nombre del archivo de una ruta
             function extractFileName(path) {
@@ -398,31 +423,10 @@
                 })
                 .then(response => response.json())
                 .then(data => {
-                    if (data.status === "ok") {
-                        // Destellar el botón con el contorno verde durante 1 segundo
-                        MediaPlaylistAction.classList.add('flash-green-border');
-                        setTimeout(() => {
-                            MediaPlaylistAction.classList.remove('flash-green-border');
-                        }, 1000);
-                    } else {
-                        // Convertir la respuesta JSON a una sola línea (sin espacios de indentación)
-                        output.textContent = JSON.stringify(data, null, 0);
-
-                        // Destellar el botón con el contorno rojo durante 1 segundo
-                        MediaPlaylistAction.classList.add('flash-red-border');
-                        setTimeout(() => {
-                            MediaPlaylistAction.classList.remove('flash-red-border');
-                        }, 1000);
-                    }
                 })
                 .catch(error => {
                     alert('Error: ' + error);
-
                     // Destellar el botón con el contorno rojo durante 1 segundo
-                    MediaPlaylistAction.classList.add('flash-red-border');
-                    setTimeout(() => {
-                        MediaPlaylistAction.classList.remove('flash-red-border');
-                    }, 1000);
                 });
             })
 
@@ -434,11 +438,13 @@
                 .then(response => response.json())
                 .then(data => {
                     if (data.status === "ok") {
+                        clearSlides();
                         // Destellar el botón con el contorno verde durante 1 segundo
                         CloseCurrentPresentation.classList.add('flash-green-border');
                         setTimeout(() => {
                             CloseCurrentPresentation.classList.remove('flash-green-border');
                         }, 1000);
+                        clearSlides();
                     } else {
                         // Convertir la respuesta JSON a una sola línea (sin espacios de indentación)
                         output.textContent = JSON.stringify(data, null, 0);
@@ -545,8 +551,186 @@
                     const idValue = clickedElement.parentElement.cells[2].textContent; // Obtén el ID de la columna ID
                     elementIdInput.value = idValue;
                     MediaPlaylistAction.click(); // Disparar evento click del botón de reproducción
+                    setTimeout(() => {
+                        loadSlides(); // Llama a la función después de x segundos (en ms)
+                    }, 700);
                 }
             });
+
+
+        // Cargar diapositivas desde el servidor Flask
+        function loadSlides() {
+            fetch('/loadSlides')
+                .then(response => {
+                    if (response.ok) {
+                        return response.json();
+                    } else {
+                        throw new Error(`Error al obtener las diapositivas: ${response.statusText}`);
+                    }
+                })
+                .then(data => {
+                    slidesContainer.innerHTML = ''; // Limpiar contenido previo
+
+                    // Crear el encabezado con el nombre de la canción
+                    const header = document.createElement('h2');
+                    if (data.name) {
+                        header.textContent = `${data.name}:`;
+                    } else {
+                        header.textContent = '';
+                    }
+                    header.className = 'song-header';
+                    slidesContainer.appendChild(header);
+
+                    if (data.slides && data.type !== 'verse') {
+                        data.slides.forEach((slide, index) => {
+
+                            // Crear un recuadro para cada diapositiva
+                            const slideBox = document.createElement('div');
+                            slideBox.className = 'slide-box';
+                            if (startFromZeroCheckbox.checked) {
+                                slideBox.setAttribute('data-slide-index', index);
+                            } else {
+                                slideBox.setAttribute('data-slide-index', index + 1);
+                            }
+
+                            // Asignar evento de clic al cuadro
+                            slideBox.addEventListener('click', () => {
+                                // Hacer una solicitud POST para cambiar el slide
+                                fetch('/goToSlide', {
+                                    method: 'POST',
+                                    headers: { 'Content-Type': 'application/json' },
+                                    body: JSON.stringify({ index: index })
+                                })
+                                .then(response => {
+                                    if (!response.ok) {
+                                        throw new Error(`Error al cambiar el slide: ${response.statusText}`);
+                                    }
+                                    return response.json();
+                                })
+                                .then(data => {
+                                    console.log(data.message || 'Slide cambiado correctamente');
+                                    loadSlides();
+                                })
+                                .catch(error => {
+                                    console.error('Error en la solicitud:', error);
+                                });
+                            });
+
+                            // Crear el índice
+                            const slideIndex = document.createElement('div');
+                            slideIndex.className = 'slide-index';
+                            if (startFromZeroCheckbox.checked) {
+                                slideIndex.textContent = `${index}`;
+                            } else {
+                                slideIndex.textContent = `${index + 1}`;
+                            }
+
+                            // Añadir el índice al recuadro
+                            slideBox.appendChild(slideIndex);
+
+                            // Crear la descripción en una línea nueva, si está disponible
+                            if (slide.slide_description) {
+                                const slideDescription = document.createElement('div');
+                                slideDescription.className = 'slide-description';
+                                slideDescription.textContent = slide.slide_description;
+                                slideBox.appendChild(slideDescription);
+                            }
+
+                            // Verificar si la presentación es del tipo "file" o "image"
+                            if (data.type === 'file' || data.type === 'image') {
+                                // Asegurarse de que 'preview' está definido
+                                if (slide.preview && typeof slide.preview === 'string') {
+                                    // Comprobar que 'preview' es una cadena base64 válida para imágenes JPEG o PNG
+                                    if (slide.preview.startsWith('/9j/')) { // JPEG
+                                        const slideImage = document.createElement('img');
+                                        slideImage.className = 'slide-preview';
+                                        slideImage.src = `data:image/jpeg;base64,${slide.preview}`;
+                                        slideBox.appendChild(slideImage);
+                                    } else if (slide.preview.startsWith('iVBORw0KGgo')) { // PNG
+                                        const slideImage = document.createElement('img');
+                                        slideImage.className = 'slide-preview';
+                                        slideImage.src = `data:image/png;base64,${slide.preview}`;
+                                        slideBox.appendChild(slideImage);
+                                    } else {
+                                        console.error("Vista previa no válida para la diapositiva", index);
+                                    }
+                                } else {
+                                    console.error("El valor de 'preview' no está definido o no es una cadena en la diapositiva", index);
+                                }
+                            } else {
+                                // Crear el texto de la diapositiva
+                                const slideText = document.createElement('div');
+                                slideText.className = 'slide-text';
+                                slideText.textContent = slide.text || '';
+                                slideBox.appendChild(slideText);
+                            }
+
+                            // Añadir el recuadro al contenedor
+                            slidesContainer.appendChild(slideBox);
+
+                        });
+
+                        // Desplazarse automáticamente al slide activo usando data-slide-index
+                        const offset = 100; // Ajuste del margen en píxeles
+                        const slidesPosition = slidesContainer.getBoundingClientRect().top + window.scrollY - offset;
+                        const activeSlide = document.querySelector(`.slide-box[data-slide-index="${data.slide_number}"]`);
+                        if (activeSlide) {
+                            activeSlide.scrollIntoView({
+                                behavior: 'smooth',
+                                block: 'center',
+                            });
+                        } else {
+                            window.scrollTo({
+                            top: slidesPosition,
+                            behavior: 'smooth',
+                        });
+                        }
+
+                    } else {
+                        const errorMessage = document.createElement('div');
+                        errorMessage.textContent = data.error || 'No se encontraron diapositivas.';
+                        slidesContainer.appendChild(errorMessage);
+                    }
+
+                    if (startFromZeroCheckbox.checked) {
+                        currentSlideNumber = data.slide_number - 1;
+                    } else {
+                        currentSlideNumber = data.slide_number;
+                    }
+                    highlightCurrentSlide(currentSlideNumber);
+                })
+                .catch(error => {
+                    console.error("Error en la solicitud:", error);
+                });
+        }
+
+        function clearSlides() {
+            const slidesContainer = document.getElementById('slides');
+            slidesContainer.innerHTML = ''; // Limpia el contenido
+        }
+
+        function highlightCurrentSlide(currentSlideIndex) {
+            // Limpia el estilo de la diapositiva actualmente destacada
+            const previousHighlighted = document.querySelector('.slide-box.highlighted');
+            if (previousHighlighted) {
+                previousHighlighted.classList.remove('highlighted');
+            }
+
+            // Destaca la diapositiva actual
+            const currentSlide = document.querySelector(`.slide-box[data-slide-index="${currentSlideIndex}"]`);
+            if (currentSlide) {
+                currentSlide.classList.add('highlighted');
+            }
+        }
+
+        document.addEventListener("DOMContentLoaded", function() {
+            reloadSlides.addEventListener("click", loadSlides);
+
+            // Llamar a loadSlides automáticamente al cambiar la selección
+            startFromZeroCheckbox.addEventListener("change", loadSlides);
+
+            GetMediaPlaylist.click();
+        });
 
 
         </script>

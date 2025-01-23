@@ -40,8 +40,19 @@ body {
   gap: 0px; /* Espacio entre los elementos hijos del contenedor */
 }
 
-/* Contenedor de letras */
-
+.contenedor_top {
+  position: sticky;
+  top: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  z-index: 999;
+  padding-top: 5px;
+  padding-bottom: 5px;
+  width: 100%;
+  height: 110px;
+  background-color: #3a393a;
+}
 /* Configura la apariencia del contenedor que contiene elementos con letras */
 .contenedor_letras {
   gap: 0px; /* Espacio entre los elementos hijos del contenedor */
@@ -89,11 +100,90 @@ body {
 
 .sticky-output {
   position: sticky;
-  top: 102px; /* La posición en la parte superior de la ventana del navegador */
+  top: 102px;
+  border-top: 13px;
+  height: 0px;
   background-color: rgb(58, 57, 58); /* Fondo blanco para cubrir los elementos de la tabla */
   z-index: 998; /* Z-index para estar por encima de la tabla */
 }
 
+.slides-container {
+  cursor: pointer;
+  transition: transform 0.2s;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin: 0px;
+}
+.slide-box {
+  width: 80%;
+  max-width: 350px;
+  border: 1px solid transparent;
+  transition: border 0.3s, box-shadow 0.3s;
+  background-color: #fff;
+  border-radius: 8px;
+  padding: 15px;
+  margin: 10px 0;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  text-align: center;
+}
+.slide-box.highlighted  {
+  border: 2px solid green;
+  box-shadow: 0 0 10px rgba(0, 255, 0, 0.5);
+}
+.slide-box:hover {
+  transform: scale(1.01);
+  background-color: rgb(252, 250, 168);
+}
+.slide-index {
+  font-weight: bold;
+  color: #333;
+  margin-bottom: 5px;
+}
+.slide-description {
+  font-size: 1.2em; /* Aumenta el tamaño del texto */
+  font-weight: bold; /* Haz el texto más grueso */
+  color: #ff6f61; /* Un color llamativo, como un rojo anaranjado */
+  text-transform: uppercase; /* Convierte el texto a mayúsculas */
+  text-align: center; /* Centra el texto */
+  background-color: #fff5e6; /* Fondo suave que contraste */
+  padding: 5px; /* Espaciado interno */
+  border: 2px solid #ff6f61; /* Un borde del mismo color que el texto */
+  border-radius: 5px; /* Bordes redondeados */
+  margin-bottom: 10px; /* Espaciado hacia abajo */
+  box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.2); /* Añade un poco de sombra */
+}
+.song-header {
+  font-size: 1.5em; /* Tamaño grande para destacar */
+  font-weight: bold; /* Negrita */
+  text-align: center; /* Centrado */
+  margin-bottom: 5px; /* Espaciado debajo */
+  color: #fff5e6; /* Color oscuro */
+  text-transform: capitalize; /* Capitaliza la primera letra de cada palabra */
+}
+.slide-text {
+  font-size: 1.2em;
+  color: #555;
+  white-space: pre-wrap;
+}
+.slide-preview {
+  width: 100%;
+  max-width: 350px;
+  height: auto;
+  margin: 10px 0;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.footer {
+  display: flex;
+  flex-direction: column;
+  text-align: center;
+  padding: 10px;
+  color: #fff;
+  font-size: 14px;
+}
 /* Estilos para botones y etiquetas */
 
 /* Configura la apariencia de los botones y etiquetas */

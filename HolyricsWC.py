@@ -7,6 +7,7 @@ from flask import Flask, render_template, request, jsonify, send_from_directory,
 import socket
 import requests, os, json
 import webbrowser
+
 def get_local_ip():
     s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
     s.settimeout(0)
@@ -18,13 +19,16 @@ def get_local_ip():
     finally:
         s.close()
     return ipLocal
+
 playing = None
 app = Flask(__name__)
 app.secret_key = 'key'
+
 def load_password():
     with open('config.json') as config_file:
         config = json.load(config_file)
         return config.get("password")
+    
 @app.route('/', methods=['GET', 'POST'])
 def index():
     if password == "":
@@ -40,6 +44,7 @@ def index():
         else:
             return "Contraseña Incorrecta", 403
     return render_template('index.html', authenticated=authenticated)
+
 @app.route('/api/config')
 def get_config():
     with open('config.json') as config_file:
@@ -47,17 +52,20 @@ def get_config():
     return jsonify(config_data)
 with open('config.json', 'r') as config_file:
     config = json.load(config_file)
+
 ip = config.get('ip')
 token = config.get('token')
 puerto = config.get('puerto')
 portServer = config.get('portServer')
 password = config.get('password')
 selected_option = config.get('option')
+
 def actualizar_opcion():
     global selected_option
     selected_option = opcion_var.get()
     with open('config.json', 'w') as config_file:
         json.dump({"ip": ip, "token": token, "puerto": puerto, "portServer": portServer, "password": password, "option": selected_option}, config_file, indent=4)
+
 def update_config():
     global ip, token, puerto, portServer, password
     ip = entry_ip.get()
@@ -69,6 +77,7 @@ def update_config():
     with open('config.json', 'w') as config_file:
         json.dump({"ip": ip, "token": token, "puerto": puerto, "portServer": portServer, "password": password, "option": selected_option}, config_file, indent=4)
     messagebox.showinfo("Información", "Configuración actualizada. Reinicie el servidor.")
+
 @app.route('/biblia', methods=['GET', 'POST'])
 def biblia():
     if password == "":
@@ -84,24 +93,29 @@ def biblia():
         else:
             return "Contraseña Incorrecta", 403
     return render_template('Biblia.html', authenticated=authenticated)
+
 @app.route('/ppt')
 def ppt():
     if acceso_permitido:    
         return render_template('ppt.html')
     else:
         return jsonify({"message": "Acceso denegado a /ppt"}), 403
+    
 def actualizar_acceso():
     global acceso_permitido
     acceso_permitido = acceso_var.get() == 1
     estado_texto.set("Permitido" if acceso_permitido else "Denegado")
     check_acceso.config(text="Activar acceso a /ppt: " + estado_texto.get())
+
 @app.route('/static/bible.json')
 def bible_json():
     return send_from_directory('static', 'bible.json')
+
 @app.route('/<path:path>')
 def serve_static(path):
     root_dir = os.path.dirname(os.getcwd())
     return send_from_directory(os.path.join(root_dir, 'static'), path)
+
 @app.route('/ToggleF8', methods=['POST'])
 def ToggleF8():
     client_ip = request.remote_addr
@@ -118,6 +132,7 @@ def ToggleF8():
             return jsonify({'error': 'Error al realizar la solicitud', 'status_code': response.status_code, 'text': response.text})
     except Exception as e:
         log_message(f"Error desde {client_ip}: {str(e)}")
+
 @app.route('/ToggleF9', methods=['POST'])
 def ToggleF9():
     client_ip = request.remote_addr
@@ -134,6 +149,7 @@ def ToggleF9():
             return jsonify({'error': 'Error al realizar la solicitud', 'status_code': response.status_code, 'text': response.text})
     except Exception as e:
         log_message(f"Error desde {client_ip}: {str(e)}")
+
 @app.route('/ToggleF10', methods=['POST'])
 def ToggleF10():
     client_ip = request.remote_addr
@@ -150,6 +166,7 @@ def ToggleF10():
             return jsonify({'error': 'Error al realizar la solicitud', 'status_code': response.status_code, 'text': response.text})
     except Exception as e:
         log_message(f"Error desde {client_ip}: {str(e)}")
+
 @app.route('/actionNext', methods=['POST'])
 def actionNext():
     client_ip = request.remote_addr
@@ -166,6 +183,7 @@ def actionNext():
             return jsonify({'error': 'Error al realizar la solicitud', 'status_code': response.status_code, 'text': response.text})
     except Exception as e:
         log_message(f"Error desde {client_ip}: {str(e)}")
+
 @app.route('/actionPrevious', methods=['POST'])
 def actionPrevious():
     client_ip = request.remote_addr
@@ -182,6 +200,7 @@ def actionPrevious():
             return jsonify({'error': 'Error al realizar la solicitud', 'status_code': response.status_code, 'text': response.text})
     except Exception as e:
         log_message(f"Error desde {client_ip}: {str(e)}")
+
 @app.route('/CloseCurrentPresentation', methods=['POST'])
 def CloseCurrentPresentation():
     client_ip = request.remote_addr
@@ -198,6 +217,7 @@ def CloseCurrentPresentation():
             return jsonify({'error': 'Error al realizar la solicitud', 'status_code': response.status_code, 'text': response.text})
     except Exception as e:
         log_message(f"Error desde {client_ip}: {str(e)}")
+
 @app.route('/GetMediaPlaylist', methods=['POST'])
 def GetMediaPlaylist():
     client_ip = request.remote_addr
@@ -214,6 +234,7 @@ def GetMediaPlaylist():
             return jsonify({'error': 'Error al realizar la solicitud', 'status_code': response.status_code, 'text': response.text})
     except Exception as e:
         log_message(f"Error desde {client_ip}: {str(e)}")
+
 @app.route('/MediaPlaylistAction', methods=['POST'])
 def MediaPlaylistAction():
     client_ip = request.remote_addr
@@ -234,6 +255,7 @@ def MediaPlaylistAction():
             return jsonify({'error': 'Error al realizar la solicitud', 'status_code': response.status_code, 'text': response.text})
     except Exception as e:
         log_message(f"Error desde {client_ip}: {str(e)}")
+
 def GetMediaPlayerInfo():
     client_ip = request.remote_addr
     url = f'http://{ip}:{puerto}/api/GetMediaPlayerInfo?token={token}'
@@ -250,6 +272,7 @@ def GetMediaPlayerInfo():
             return {'error': 'Error al realizar la solicitud', 'status_code': response.status_code, 'text': response.text}
     except Exception as e:
         log_message(f"Error desde {client_ip}: {str(e)}")
+
 @app.route('/MediaPlayerActionPause', methods=['POST'])
 def MediaPlayerActionPause():
     GetMediaPlayerInfo()
@@ -282,6 +305,39 @@ def MediaPlayerActionPause():
                 return jsonify({'error': 'Error al realizar la solicitud', 'status_code': response.status_code, 'text': response.text})
         except Exception as e:
             log_message(f"Error desde {client_ip}: {str(e)}")
+
+# Ruta para obtener las diapositivas de la presentación actual
+@app.route('/loadSlides', methods=['GET'])
+def get_slides():
+    url = f'http://{ip}:{puerto}/api/GetCurrentPresentation?token={token}'
+    data = {
+        "include_slides": True,
+        "include_slide_comment": True,
+        "include_slide_preview": True,
+        "slide_preview_size": "320x180"
+    }
+    try:
+        response = requests.post(url, json=data)
+        if response.status_code == 200:
+            result = response.json()
+            if result.get('data') and result['data'].get('slides'):
+                song_name = result['data'].get('name')
+                slide_number = result['data'].get('slide_number')
+                slides = result['data']['slides']
+                presentation_type = result['data'].get('type')
+                return jsonify({
+                    "name": song_name,
+                    "slide_number": slide_number,
+                    "type": presentation_type,
+                    "slides": slides
+                })
+            else:
+                return jsonify({"error": "No se encontraron diapositivas."})
+        else:
+            return jsonify({"error": f"Error al obtener las diapositivas: {response.status_code}", "text": response.text})
+    except Exception as e:
+        return jsonify({"error": f"Error en la solicitud: {str(e)}"})
+
 @app.route('/MediaPlayerActionStop', methods=['POST'])
 def MediaPlayerActionStop():
     client_ip = request.remote_addr
@@ -298,6 +354,27 @@ def MediaPlayerActionStop():
             return jsonify({'error': 'Error al realizar la solicitud', 'status_code': response.status_code, 'text': response.text})
     except Exception as e:
         log_message(f"Error desde {client_ip}: {str(e)}")
+
+@app.route('/goToSlide', methods=['POST'])
+def go_to_slide():
+    client_ip = request.remote_addr
+    index = request.json.get('index')  # Obtener el índice desde el cuerpo de la solicitud
+    url = f'http://{ip}:{puerto}/api/ActionGoToIndex?token={token}'
+    headers = {'Content-Type': 'application/json'}
+    data = {'index': index}
+    
+    try:
+        response = requests.post(url, headers=headers, json=data)
+        if response.status_code == 200:
+            log_message(f"Slide cambiado al índice {index} por {client_ip}")
+            return jsonify({'message': f'Slide cambiado al índice {index}'})
+        else:
+            log_message(f"Error al cambiar el slide: {response.status_code}")
+            return jsonify({'error': 'Error al cambiar el slide', 'status_code': response.status_code, 'text': response.text})
+    except Exception as e:
+        log_message(f"Error desde {client_ip}: {str(e)}")
+        return jsonify({'error': 'Error interno', 'details': str(e)})
+
 
 #-------------------------------------------
 # Configurar la interfaz gráfica con Tkinter
@@ -419,9 +496,11 @@ for i, (opcion_texto, opcion_valor) in enumerate(opciones):
 tk.Label(root, text="Logs:").grid(row=10, column=0, padx=5, pady=0, sticky="w")
 txt_logs = scrolledtext.ScrolledText(root, width=40, height=10)
 txt_logs.grid(row=11, column=0, columnspan=2, padx=5, pady=5, sticky="ew")
+
 def log_message(message):
     txt_logs.insert(tk.END, message + '\n')
     txt_logs.see(tk.END)
+
 log_message("Servidor en ejecución...")
 status_text = tk.StringVar()
 status_label = tk.Label(root, textvariable=status_text, font=("Helvetica", 12))
