@@ -68,8 +68,15 @@ def actualizar_opcion():
         json.dump({"ip": ip, "token": token, "puerto": puerto, "portServer": portServer, "password": password, "option": selected_option}, config_file, indent=4)
 
 def restart_app():
-    python = sys.executable  # Ruta al intérprete de Python
-    os.execl(python, python, *sys.argv)
+    # Detectar si está ejecutándose como ejecutable
+    if getattr(sys, 'frozen', False):
+        # Reiniciar el ejecutable compilado
+        executable = sys.executable
+        os.execl(executable, executable, *sys.argv)
+    else:
+        # Reiniciar el script en modo desarrollo
+        python = sys.executable
+        os.execl(python, python, *sys.argv)
 
 def update_config():
     global ip, token, puerto, portServer, password
@@ -387,7 +394,7 @@ def go_to_slide():
 # Configurar la interfaz gráfica con Tkinter
 root = tk.Tk()
 root.title("Hlrcs Web Control")
-root.iconbitmap("IconoWCH.ico")
+root.iconbitmap("_internal/IconoWCH.ico")
 root.geometry("294x358")
 root.resizable(False, False)
 root.configure(bg="#404040")
@@ -467,7 +474,7 @@ def show_about():
     )
     messagebox.showinfo("Acerca de...", about_message)
     
-icon_path = "IconoWCH.ico"
+icon_path = "_internal/IconoWCH.ico"
 def show_window(icon, item):
     icon.stop()
     root.after(0, root.deiconify)
