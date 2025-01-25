@@ -24,6 +24,11 @@ document.addEventListener('DOMContentLoaded', function() {
     let ip = null;
     let token = null;
     let puerto = null;
+    quickPresentation = false;
+
+    document.getElementById("quick_presentation").addEventListener("change", function () {
+        quickPresentation = this.checked; // True si está marcado, False si no
+    });
 
     // Cargar los datos de la Biblia desde JSON
     fetch('/static/bible.json')
@@ -185,8 +190,8 @@ document.addEventListener('DOMContentLoaded', function() {
         const verseID = generateVerseID(bookNumber, chapter, verse);
         const url = `http://${ip}:${puerto}/api/ShowVerse?token=${token}`;
         const data = ids.length > 0
-            ? { ids, quick_presentation: true } // Usar el array de IDs si existe
-            : { id: verseID, quick_presentation: true };
+            ? { ids, quick_presentation: quickPresentation } // Usar el array de IDs si existe
+            : { id: verseID, quick_presentation: quickPresentation };
         fetch(url, { 
             method: 'POST',
             headers: {
@@ -600,7 +605,9 @@ document.addEventListener('DOMContentLoaded', function() {
     // }
 
     function sendCloseCurrentPresentation() {
-        const url = `http://${ip}:${puerto}/api/CloseCurrentQuickPresentation?token=${token}`;
+        const url = quickPresentation 
+        ? `http://${ip}:${puerto}/api/CloseCurrentQuickPresentation?token=${token}` 
+        : `http://${ip}:${puerto}/api/CloseCurrentPresentation?token=${token}`;
         const data = {};
 
         fetch(url, { 

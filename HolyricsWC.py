@@ -1,11 +1,12 @@
 import tkinter as tk
+from tkinter import ttk
 import threading
 from tkinter import scrolledtext, messagebox, Menu
 from pystray import Icon, MenuItem as item
 from PIL import Image, ImageDraw
 from flask import Flask, render_template, request, jsonify, send_from_directory, session
 import socket
-import requests, os, json
+import requests, os, json, sys
 import webbrowser
 
 def get_local_ip():
@@ -66,6 +67,10 @@ def actualizar_opcion():
     with open('config.json', 'w') as config_file:
         json.dump({"ip": ip, "token": token, "puerto": puerto, "portServer": portServer, "password": password, "option": selected_option}, config_file, indent=4)
 
+def restart_app():
+    python = sys.executable  # Ruta al intérprete de Python
+    os.execl(python, python, *sys.argv)
+
 def update_config():
     global ip, token, puerto, portServer, password
     ip = entry_ip.get()
@@ -76,7 +81,9 @@ def update_config():
     selected_option = opcion_var.get()
     with open('config.json', 'w') as config_file:
         json.dump({"ip": ip, "token": token, "puerto": puerto, "portServer": portServer, "password": password, "option": selected_option}, config_file, indent=4)
-    messagebox.showinfo("Información", "Configuración actualizada. Reinicie el servidor.")
+    if messagebox.showinfo("Información", "Configuración actualizada.\n\nSe reiniciará la aplicación."):
+        restart_app()
+    
 
 @app.route('/biblia', methods=['GET', 'POST'])
 def biblia():
@@ -379,31 +386,70 @@ def go_to_slide():
 #-------------------------------------------
 # Configurar la interfaz gráfica con Tkinter
 root = tk.Tk()
-root.title("Server - Holyrics Web Control")
+root.title("Hlrcs Web Control")
+root.iconbitmap("IconoWCH.ico")
+root.geometry("294x358")
 root.resizable(False, False)
-root.configure(bg="#f0f0f0")
-root.option_add("*Font", "Arial 10")
-root.option_add("*Button.Font", "Arial 10 bold")
-bg_color = "#f0f0f0"
+root.configure(bg="#404040")
+root.option_add("*Font", "Helvetica 10")
+root.option_add("*Button.Font", "Helvetica 10 bold")
+bg_color = "#404040"
 btn_color = "#007ACC"
 btn_fg_color = "white"
-frame_bg_color = "#e0e0e0"
+frame_bg_color = "#2d2d2d"
+fg_color = "white"
+entry_color = "#404040"
+
+notebook = ttk.Notebook(root)
+
+# Ubicar el Notebook en la ventana principal
+notebook.pack(expand=True, fill="both")
+
+# Personalizar estilo de las pestañas
+style = ttk.Style()
+style.theme_use("default")
+style.configure("TNotebook", background=bg_color, borderwidth=0)
+style.configure("TNotebook.Tab", background=frame_bg_color, foreground=fg_color)
+style.map("TNotebook.Tab", background=[("selected", "#404040")])
+
+# Crear los frames para cada pestaña
+tab1 = ttk.Frame(notebook, style="TNotebook")
+tab1.pack(fill="both", expand=True)
+tab2 = ttk.Frame(notebook, style="TNotebook")
+tab2.pack(fill="both", expand=True)
+tab3 = ttk.Frame(notebook, style="TNotebook")
+tab3.pack(fill="both", expand=True)
+
+# Agregar las pestañas al Notebook
+notebook.add(tab1, text="Ajustes")
+notebook.add(tab2, text="Control de PPT")
+notebook.add(tab3, text="Logs")
+
+# Tab Ajustes
+# frame = tk.Frame(tab1, bg=bg_color)
+# frame.pack(fill="both", expand=True, padx=10, pady=10)
+
+
+#-------------------------------------------
 def update_status():
     ipLocal = get_local_ip()
     port = portServer
     url = (f"http://{ipLocal}:{port}")
     status_text.set(f"Servidor corriendo en:\n{url}")
     global urlRun
-    urlRun = tk.Label(root, text=url, font=("Arial", 12))
+    urlRun = tk.Label(tab1, text=url, font=("Arial", 12))
+
 def mostrar_notificacion(texto):
-    notificacion = tk.Label(root, text=texto, background="lightgreen")
-    notificacion.place(x=515, y=477)
+    notificacion = tk.Label(tab1, text=texto, background="lightgreen")
+    notificacion.place(x=224, y=254)
     root.after(2000, notificacion.destroy)
+
 def copiar_al_portapapeles():
     texto = urlRun.cget("text")
     root.clipboard_clear()
     root.clipboard_append(texto)
     mostrar_notificacion("Copiado")
+
 def open_tutorial():
     webbrowser.open("https://youtu.be/ZxcN2IjycTs")
 
@@ -411,7 +457,7 @@ def show_about():
     about_message = (
         "☝️ PARA LA GLORIA DE DIOS ☝️\n\n"
         "Web Control para Holyrics\n"
-        "Versión: 2.2.0\n\n\n"
+        "Versión: 2.3.2\n\n\n"
         "Información de contacto:\n\n"
         "Telegram: @mark_ost7\n"
         "GitHub: https://github.com/wcmark\n"
@@ -421,25 +467,21 @@ def show_about():
     )
     messagebox.showinfo("Acerca de...", about_message)
     
-# Función para crear el ícono de la bandeja (simple ejemplo con un círculo)
-def create_image():
-    image = Image.new('RGB', (64, 64), color=(255, 255, 255))
-    draw = ImageDraw.Draw(image)
-    draw.ellipse((16, 16, 48, 48), fill='black')
-    return image
+icon_path = "IconoWCH.ico"
 def show_window(icon, item):
     icon.stop()
     root.after(0, root.deiconify)
 def hide_window():
     root.withdraw()
-    image = create_image()
+    image = Image.open(icon_path)
     menu = (item('Mostrar', show_window), item('Salir', close_cmd))
-    icon = Icon("AppName", image, "My App", menu)
+    icon = Icon("AppName", image, "Hlrcs Web Control", menu)
     threading.Thread(target=icon.run, daemon=True).start()
 def close_cmd():
     os._exit(0)
+
 root.protocol("WM_DELETE_WINDOW", close_cmd)
-menu_bar = Menu(root)
+menu_bar = Menu(root, bg=bg_color, fg=fg_color, activebackground="#3c3c3c", activeforeground=fg_color)
 root.config(menu=menu_bar)
 file_menu = Menu(menu_bar, tearoff=0)
 file_menu.add_command(label="Minimizar a la bandeja del sistema", command=hide_window)
@@ -448,65 +490,82 @@ help_menu = tk.Menu(menu_bar, tearoff=0)
 menu_bar.add_cascade(label="Ayuda", menu=help_menu)
 help_menu.add_command(label="Tutorial", command=open_tutorial)
 help_menu.add_command(label="Acerca de...", command=show_about)
-label_frame_title = tk.Label(root, text="Configuración", font=("Arial", 12), background="lightgray")
+
+label_frame_title = tk.Label(tab1, text="Ajustes", font=("Arial", 12), background="#1e1e1e", fg="white")
 label_frame_title.grid(row=0, column=0, padx=5, pady=5, sticky="ew")
-config_frame = tk.Frame(root, background=frame_bg_color)
+config_frame = tk.Frame(tab1, background=frame_bg_color)
 config_frame.grid(row=1, column=0, padx=5, pady=5, sticky="ew")
-tk.Label(config_frame, text="IP del equipo de Holyrics:", anchor="w", background=frame_bg_color).grid(row=0, column=0, padx=5, sticky="W")
-entry_ip = tk.Entry(config_frame, justify="center")
-entry_ip.grid(row=0, column=1, padx=5, pady=5, sticky="ew")
+tk.Label(config_frame, text="IP del equipo de Holyrics:", anchor="w", background=frame_bg_color, fg="white").grid(row=0, column=0, padx=5, sticky="W")
+entry_ip = tk.Entry(config_frame, justify="center", width=15, bg=entry_color, fg=fg_color, insertbackground=fg_color)
+entry_ip.grid(row=0, column=1, padx=5, pady=5, sticky="w")
 entry_ip.insert(0, ip)
-tk.Label(config_frame, text="Token (API Holyrics):", anchor="w", background=frame_bg_color).grid(row=1, column=0, padx=5, sticky="W")
-entry_token = tk.Entry(config_frame, show="*", justify="center")
-entry_token.grid(row=1, column=1, padx=5, pady=5, sticky="ew")
+tk.Label(config_frame, text="Token (API Holyrics):", anchor="w", background=frame_bg_color, fg="white").grid(row=1, column=0, padx=5, sticky="W")
+entry_token = tk.Entry(config_frame, show="*", justify="center", width=15, bg=entry_color, fg=fg_color, insertbackground=fg_color)
+entry_token.grid(row=1, column=1, padx=5, pady=5, sticky="w")
 entry_token.insert(0, token)
-tk.Label(config_frame, text="Puerto (API Holyrics):", anchor="w", background=frame_bg_color).grid(row=2, column=0, padx=5, sticky="W")
-entry_puerto = tk.Entry(config_frame, justify="center")
-entry_puerto.grid(row=2, column=1, padx=5, pady=5, sticky="ew")
+tk.Label(config_frame, text="Puerto (API Holyrics):", anchor="w", background=frame_bg_color, fg="white").grid(row=2, column=0, padx=5, sticky="W")
+entry_puerto = tk.Entry(config_frame, justify="center", width=15, bg=entry_color, fg=fg_color, insertbackground=fg_color)
+entry_puerto.grid(row=2, column=1, padx=5, pady=5, sticky="w")
 entry_puerto.insert(0, puerto)
 separator = tk.Label(config_frame, text="", background=frame_bg_color)
 separator.grid(row=3, column=0, pady=5)
-tk.Label(config_frame, text="Puerto para este servidor:", anchor="w", background=frame_bg_color).grid(row=4, column=0, padx=5, sticky="W")
-entry_portServer = tk.Entry(config_frame, justify="center")
-entry_portServer.grid(row=4, column=1, padx=5, pady=5, sticky="ew")
+tk.Label(config_frame, text="Puerto para este servidor:", anchor="w", background=frame_bg_color, fg="white").grid(row=4, column=0, padx=5, sticky="W")
+entry_portServer = tk.Entry(config_frame, justify="center", width=15, bg=entry_color, fg=fg_color, insertbackground=fg_color)
+entry_portServer.grid(row=4, column=1, padx=5, pady=5, sticky="w")
 entry_portServer.insert(0, portServer)
-tk.Label(config_frame, text="Contraseña (opcional):", anchor="w", background=frame_bg_color).grid(row=5, column=0, padx=5, sticky="W")
-entry_password = tk.Entry(config_frame, show="*", justify="center")
-entry_password.grid(row=5, column=1, padx=5, pady=5, sticky="ew")
+tk.Label(config_frame, text="Contraseña (opcional):", anchor="w", background=frame_bg_color, fg="white").grid(row=5, column=0, padx=5, sticky="W")
+entry_password = tk.Entry(config_frame, show="*", justify="center", width=15, bg=entry_color, fg=fg_color, insertbackground=fg_color)
+entry_password.grid(row=5, column=1, padx=5, pady=5, sticky="w")
 entry_password.insert(0, password)
 btn_save = tk.Button(config_frame, text="Guardar Configuración", command=update_config, bg=btn_color, fg=btn_fg_color)
 btn_save.grid(row=6, column=0, columnspan=2, padx=5, pady=9)
-label_frame2_title = tk.Label(root, text="Control de PPT", font=("Arial", 12), background="lightgray")
-label_frame2_title.grid(row=0, column=1, padx=5, pady=5, sticky="ew")
-config_frame2 = tk.Frame(root, background=frame_bg_color)
-config_frame2.grid(row=1, column=1, padx=5, pady=5, sticky="ew")
+
+label_frame2_title = tk.Label(tab2, text="Control de PPT", font=("Arial", 12), background="#1e1e1e", fg="white")
+label_frame2_title.grid(row=0, column=0, columnspan=2, padx=5, pady=5, sticky="ew")
+config_frame2 = tk.Frame(tab2, background=frame_bg_color)
+config_frame2.grid(row=1, column=0, columnspan=2, padx=5, pady=5, sticky="nsew")
 acceso_var = tk.IntVar(value=1)
 acceso_permitido = True
 estado_texto = tk.StringVar(value="Permitido")
-check_acceso = tk.Checkbutton(config_frame2, text="Activar acceso a /ppt: " + estado_texto.get(), variable=acceso_var, command=actualizar_acceso, background=frame_bg_color)
-check_acceso.grid(row=0, column=0, padx=5, pady=5, sticky="w")
+check_acceso = tk.Checkbutton(config_frame2, text="Activar acceso a /ppt: " + estado_texto.get(), variable=acceso_var, command=actualizar_acceso, background=frame_bg_color, fg="white", selectcolor="#1e1e1e")
+check_acceso.grid(row=0, column=0, padx=5, pady=5, sticky="nsew")
 opcion_var = tk.StringVar(value=selected_option)
 opciones = [("Widescreen", "/widescreen"), 
             ("Text", "/text"), 
             ("Text 2", "/text2"), 
             ("Text 3", "/text3")]
-tk.Label(config_frame2, text="Selecciona una proyección de holyrics\npara mostrar en el control de diapositivas:", anchor="w", justify="left", background=frame_bg_color).grid(row=1, column=0, columnspan=2, padx=5, pady=5, sticky="w")
+tk.Label(config_frame2, text="Selecciona una proyección de holyrics\npara mostrar en el control de diapositivas:", anchor="w", justify="left", background=frame_bg_color, fg="white").grid(row=1, column=0, columnspan=2, padx=5, pady=5, sticky="w")
 for i, (opcion_texto, opcion_valor) in enumerate(opciones):
-    tk.Radiobutton(config_frame2, text=opcion_texto, variable=opcion_var, value=opcion_valor, command=actualizar_opcion, background=frame_bg_color).grid(row=2+i, column=0, padx=2, pady=5, sticky="w")
-tk.Label(root, text="Logs:").grid(row=10, column=0, padx=5, pady=0, sticky="w")
-txt_logs = scrolledtext.ScrolledText(root, width=40, height=10)
+    tk.Radiobutton(config_frame2, text=opcion_texto, variable=opcion_var, value=opcion_valor, command=actualizar_opcion, background=frame_bg_color, fg="white", selectcolor="#1e1e1e").grid(row=2+i, column=0, padx=2, pady=5, sticky="w")
+
+tab2.grid_columnconfigure(0, weight=1)
+tab2.grid_columnconfigure(1, weight=1)
+tab2.grid_rowconfigure(1, weight=1)
+
+
+logs_text = tk.Label(tab3, text="Logs", font=("Arial", 12), background="#1e1e1e", fg="white")
+logs_text.grid(row=10, column=0, columnspan=2, padx=5, pady=5, sticky="ew")
+txt_logs = scrolledtext.ScrolledText(tab3, height=18, bg=entry_color, fg=fg_color, insertbackground=fg_color)
 txt_logs.grid(row=11, column=0, columnspan=2, padx=5, pady=5, sticky="ew")
+
+# Configurar las columnas para que sean ajustables
+tab3.grid_columnconfigure(0, weight=1)  # Hacer que la primera columna sea flexible
+tab3.grid_columnconfigure(1, weight=1)  # Hacer que la segunda columna sea flexible
+
+# Configurar las filas para que también sean ajustables (opcional)
+tab3.grid_rowconfigure(11, weight=1)  # Hacer que la fila 11 sea flexible
 
 def log_message(message):
     txt_logs.insert(tk.END, message + '\n')
     txt_logs.see(tk.END)
 
 log_message("Servidor en ejecución...")
+
 status_text = tk.StringVar()
-status_label = tk.Label(root, textvariable=status_text, font=("Helvetica", 12))
-status_label.grid(row=12, column=0, columnspan=2, padx=10, pady=0)
-boton_copiar = tk.Button(root, text="Copiar URL", command=copiar_al_portapapeles, bg=btn_color, fg=btn_fg_color)
-boton_copiar.grid(row=12, column=1, columnspan=2, padx=0, pady=5, sticky="n")
+status_label = tk.Label(tab1, textvariable=status_text, font=("Helvetica", 10), background=frame_bg_color, fg=fg_color)
+status_label.grid(row=12, column=0, padx=5, pady=0, sticky="w")
+boton_copiar = tk.Button(tab1, text="Copiar URL", command=copiar_al_portapapeles, bg=btn_color, fg=btn_fg_color)
+boton_copiar.grid(row=12, column=0, padx=5, pady=5, sticky="ne")
 update_status()
 if __name__ == '__main__':
     flask_thread = threading.Thread(target=lambda: app.run(host='0.0.0.0', port=portServer, debug=False))
